@@ -27,46 +27,33 @@ import {
   Send,
   Wallet
 } from 'lucide-react';
+import { usePost, useCreateApplication } from '@/hooks/usePosts';
+import { useAuth } from '@/hooks/useAuth';
 
 export const PostDetail = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const [bidAmount, setBidAmount] = useState('');
   const [bidMessage, setBidMessage] = useState('');
-  const [isSubmittingBid, setIsSubmittingBid] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Mock data - will be replaced with real data fetching
-  const post = {
-    id: '1',
-    title: 'Help with React Performance Optimization',
-    description: 'Need assistance optimizing a React app that\'s experiencing slow renders. The app has a complex component tree with multiple state updates causing performance issues. Looking for someone with experience in React profiling, memo optimization, and performance best practices. The project uses React 18 with TypeScript and has about 50+ components. Current issues include slow list rendering, unnecessary re-renders, and memory leaks in some components.',
-    value: 2.5,
-    status: 'open' as const,
-    category: 'frontend' as const,
-    tags: ['React', 'Performance', 'JavaScript', 'TypeScript'],
-    publisher: { 
-      displayName: 'Alice Dev', 
-      avatar: null,
-      walletAddress: '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgHkV'
-    },
-    createdAt: new Date('2024-01-15'),
-    deadline: new Date('2024-01-22'),
-    applications: 3,
-    userHasBid: false
-  };
-
-  const isPublisher = false; // Will be determined by wallet comparison
+  const { data: post, isLoading, error } = usePost(id!);
+  const createApplication = useCreateApplication();
 
   const handleSubmitBid = async () => {
-    setIsSubmittingBid(true);
+    if (!post || !bidAmount || !bidMessage) return;
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log('Submitting bid:', { amount: bidAmount, message: bidMessage });
+      await createApplication.mutateAsync({
+        post_id: post.id,
+        bid_amount: parseFloat(bidAmount),
+        message: bidMessage,
+      });
       setBidAmount('');
       setBidMessage('');
+      setDialogOpen(false);
     } catch (error) {
       console.error('Error submitting bid:', error);
-    } finally {
-      setIsSubmittingBid(false);
     }
   };
 
@@ -84,9 +71,30 @@ export const PostDetail = () => {
       case 'frontend': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
       case 'backend': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
       case 'blockchain': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'mobile': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'devops': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">Loading post...</div>
+      </div>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <div className="container py-8">
+        <div className="text-center text-red-500">Post not found or error loading post.</div>
+      </div>
+    );
+  }
+
+  const isPublisher = user?.id === post.publisher_id;
+  const userHasBid = post.applications?.some(app => app.helper_id === user?.id);
 
   return (
     <div className="container py-8">
@@ -125,7 +133,7 @@ export const PostDetail = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag) => (
+                  {post.tags?.map((tag) => (
                     <Badge key={tag} variant="secondary" className="text-xs">
                       <Tag className="mr-1 h-3 w-3" />
                       {tag}
@@ -136,13 +144,13 @@ export const PostDetail = () => {
             </Card>
 
             {/* Apply Section */}
-            {!isPublisher && post.status === 'open' && (
+            {!isPublisher && post.status === 'open' && user && (
               <Card>
                 <CardHeader>
                   <CardTitle>Submit Your Bid</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {post.userHasBid ? (
+                  {userHasBid ? (
                     <div className="text-center py-8">
                       <div className="mb-4">
                         <Badge variant="outline" className="text-lg px-4 py-2">
@@ -154,7 +162,7 @@ export const PostDetail = () => {
                       </p>
                     </div>
                   ) : (
-                    <Dialog>
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                       <DialogTrigger asChild>
                         <Button className="w-full" size="lg">
                           <Send className="mr-2 h-4 w-4" />
@@ -194,8 +202,11 @@ export const PostDetail = () => {
                           </div>
                         </div>
                         <DialogFooter>
-                          <Button onClick={handleSubmitBid} disabled={isSubmittingBid || !bidAmount || !bidMessage}>
-                            {isSubmittingBid ? 'Submitting...' : 'Submit Application'}
+                          <Button 
+                            onClick={handleSubmitBid} 
+                            disabled={createApplication.isPending || !bidAmount || !bidMessage}
+                          >
+                            {createApplication.isPending ? 'Submitting...' : 'Submit Application'}
                           </Button>
                         </DialogFooter>
                       </DialogContent>
@@ -217,17 +228,17 @@ export const PostDetail = () => {
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Deadline:</span>
-                  <span>{post.deadline.toLocaleDateString()}</span>
+                  <span>{new Date(post.deadline).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Posted:</span>
-                  <span>{post.createdAt.toLocaleDateString()}</span>
+                  <span>{new Date(post.created_at).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Applications:</span>
-                  <span>{post.applications}</span>
+                  <span>{post.applications?.length || 0}</span>
                 </div>
               </CardContent>
             </Card>
@@ -243,18 +254,22 @@ export const PostDetail = () => {
                     <User className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <div className="font-medium">{post.publisher.displayName}</div>
-                    <div className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Wallet className="h-3 w-3" />
-                      {post.publisher.walletAddress.slice(0, 8)}...{post.publisher.walletAddress.slice(-8)}
-                    </div>
+                    <div className="font-medium">{post.profiles?.name || 'Unknown'}</div>
+                    {post.profiles?.wallet_address && (
+                      <div className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Wallet className="h-3 w-3" />
+                        {post.profiles.wallet_address.slice(0, 8)}...{post.profiles.wallet_address.slice(-8)}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <Link to={`/profile/${post.publisher.walletAddress}`}>
-                  <Button variant="outline" size="sm" className="w-full">
-                    View Profile
-                  </Button>
-                </Link>
+                {post.profiles?.wallet_address && (
+                  <Link to={`/profile/${post.profiles.wallet_address}`}>
+                    <Button variant="outline" size="sm" className="w-full">
+                      View Profile
+                    </Button>
+                  </Link>
+                )}
               </CardContent>
             </Card>
           </div>

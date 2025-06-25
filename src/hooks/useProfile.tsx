@@ -47,14 +47,21 @@ export const useUpdateProfile = () => {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async (profileData: Partial<Profile>) => {
+    mutationFn: async (profileData: Partial<Profile> & { name: string }) => {
       if (!user) throw new Error('User not authenticated');
 
       const { data, error } = await supabase
         .from('profiles')
         .upsert({
-          ...profileData,
           user_id: user.id,
+          name: profileData.name,
+          phone: profileData.phone,
+          country: profileData.country,
+          birth_date: profileData.birth_date,
+          email: profileData.email,
+          skype: profileData.skype,
+          specialties: profileData.specialties,
+          wallet_address: profileData.wallet_address,
           updated_at: new Date().toISOString(),
         })
         .select()

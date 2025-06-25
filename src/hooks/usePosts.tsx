@@ -48,20 +48,13 @@ export const usePosts = () => {
         .from('posts')
         .select(`
           *,
-          profiles!posts_publisher_id_fkey(name, wallet_address),
-          applications(
-            id,
-            bid_amount,
-            status,
-            applied_at,
-            profiles!applications_helper_id_fkey(name, wallet_address)
-          )
+          profiles!posts_publisher_id_fkey(name, wallet_address)
         `)
         .eq('status', 'open')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Post[];
+      return data || [];
     },
   });
 };
@@ -74,17 +67,28 @@ export const usePost = (id: string) => {
         .from('posts')
         .select(`
           *,
-          profiles!posts_publisher_id_fkey(name, wallet_address),
-          applications(
-            *,
-            profiles!applications_helper_id_fkey(name, email, phone, skype, wallet_address)
-          )
+          profiles!posts_publisher_id_fkey(name, wallet_address)
         `)
         .eq('id', id)
         .single();
 
       if (error) throw error;
-      return data as Post;
+      
+      // Get applications separately
+      const { data: applications, error: appsError } = await supabase
+        .from('applications')
+        .select(`
+          *,
+          profiles!applications_helper_id_fkey(name, email, phone, skype, wallet_address)
+        `)
+        .eq('post_id', id);
+
+      if (appsError) throw appsError;
+
+      return {
+        ...data,
+        applications: applications || []
+      };
     },
   });
 };
@@ -99,18 +103,33 @@ export const useUserPosts = () => {
       
       const { data, error } = await supabase
         .from('posts')
-        .select(`
-          *,
-          applications(
-            *,
-            profiles!applications_helper_id_fkey(name, email, phone, skype, wallet_address)
-          )
-        `)
+        .select('*')
         .eq('publisher_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Post[];
+
+      // Get applications for each post
+      const postsWithApplications = await Promise.all(
+        (data || []).map(async (post) => {
+          const { data: applications, error: appsError } = await supabase
+            .from('applications')
+            .select(`
+              *,
+              profiles!applications_helper_id_fkey(name, email, phone, skype, wallet_address)
+            `)
+            .eq('post_id', post.id);
+
+          if (appsError) throw appsError;
+
+          return {
+            ...post,
+            applications: applications || []
+          };
+        })
+      );
+
+      return postsWithApplications;
     },
     enabled: !!user,
   });
