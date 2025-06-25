@@ -293,7 +293,7 @@ export const useUpdateApplicationStatus = () => {
 
       if (error) throw error;
 
-      // If accepting, update post status to in_progress
+      // If accepting, update post status to in_progress and send email
       if (status === 'accepted') {
         const { error: postError } = await supabase
           .from('posts')
@@ -301,12 +301,23 @@ export const useUpdateApplicationStatus = () => {
           .eq('id', data.post_id);
 
         if (postError) throw postError;
+
+        // Send email notification
+        try {
+          await supabase.functions.invoke('send-bid-acceptance-email', {
+            body: { applicationId }
+          });
+        } catch (emailError) {
+          console.error('Failed to send email notification:', emailError);
+          // Don't fail the whole operation if email fails
+        }
       }
 
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['post'] });
       queryClient.invalidateQueries({ queryKey: ['user-posts'] });
       toast({
         title: "Application updated",
@@ -316,6 +327,121 @@ export const useUpdateApplicationStatus = () => {
     onError: (error: any) => {
       toast({
         title: "Error updating application",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useCompletePost = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const { data, error } = await supabase
+        .from('posts')
+        .update({ status: 'completed' })
+        .eq('id', postId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['post'] });
+      queryClient.invalidateQueries({ queryKey: ['user-posts'] });
+      toast({
+        title: "Post completed",
+        description: "The post has been marked as completed. You can now proceed with payment.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error completing post",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useCancelPost = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const { data, error } = await supabase
+        .from('posts')
+        .update({ status: 'cancelled' })
+        .eq('id', postId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['post'] });
+      queryClient.invalidateQueries({ queryKey: ['user-posts'] });
+      toast({
+        title: "Post cancelled",
+        description: "The post has been cancelled.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error cancelling post",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useCancelAcceptedBid = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      // First, reject all accepted applications for this post
+      const { error: appsError } = await supabase
+        .from('applications')
+        .update({ status: 'rejected' })
+        .eq('post_id', postId)
+        .eq('status', 'accepted');
+
+      if (appsError) throw appsError;
+
+      // Then, set post status back to open
+      const { data, error } = await supabase
+        .from('posts')
+        .update({ status: 'open' })
+        .eq('id', postId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['post'] });
+      queryClient.invalidateQueries({ queryKey: ['user-posts'] });
+      toast({
+        title: "Accepted bid cancelled",
+        description: "The accepted bid has been cancelled and the post is now open for new applications.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error cancelling bid",
         description: error.message,
         variant: "destructive",
       });

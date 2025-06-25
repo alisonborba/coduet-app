@@ -1,10 +1,14 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Code } from 'lucide-react';
+import { Code, User, LayoutDashboard } from 'lucide-react';
 import { WalletButton } from '@/components/wallet/WalletButton';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Header = () => {
+  const { user } = useAuth();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -32,10 +36,25 @@ export const Header = () => {
           >
             Create Post
           </Link>
+          {user && (
+            <Link 
+              to="/dashboard" 
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
+              Dashboard
+            </Link>
+          )}
         </nav>
 
         {/* Actions */}
         <div className="flex items-center space-x-4">
+          {user && (
+            <Link to={`/profile/${user.id}`}>
+              <Button variant="ghost" size="sm">
+                <User className="h-4 w-4" />
+              </Button>
+            </Link>
+          )}
           <WalletButton />
         </div>
       </div>

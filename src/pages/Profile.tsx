@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,22 +25,46 @@ import {
   Save,
   X
 } from 'lucide-react';
+import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Profile = () => {
   const { walletAddress } = useParams();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Use the current user's ID for profile lookup, not wallet address
+  const { data: profile, isLoading } = useProfile(user?.id);
+  const updateProfile = useUpdateProfile();
+
   const [profileData, setProfileData] = useState({
-    name: 'João Silva',
-    phone: '+55 11 99999-9999',
-    country: 'Brazil',
-    birthDate: '1990-05-15',
-    email: 'joao@example.com',
-    skype: 'joao.silva.dev',
-    specialties: ['React', 'Node.js', 'TypeScript', 'Solana'],
-    bio: 'Desenvolvedor Full Stack com 5 anos de experiência em React e blockchain.'
+    name: '',
+    phone: '',
+    country: '',
+    birth_date: '',
+    email: '',
+    skype: '',
+    specialties: [] as string[],
+    wallet_address: ''
   });
 
-  const isOwnProfile = true; // Will be determined by comparing with connected wallet
+  // Update form data when profile loads
+  useEffect(() => {
+    if (profile) {
+      setProfileData({
+        name: profile.name || '',
+        phone: profile.phone || '',
+        country: profile.country || '',
+        birth_date: profile.birth_date || '',
+        email: profile.email || '',
+        skype: profile.skype || '',
+        specialties: profile.specialties || [],
+        wallet_address: profile.wallet_address || ''
+      });
+    }
+  }, [profile]);
+
+  const isOwnProfile = true; // Always own profile for now since we're using user ID
 
   const countries = [
     'Brazil', 'United States', 'Canada', 'United Kingdom', 'Germany', 
@@ -53,15 +77,30 @@ export const Profile = () => {
     'AWS', 'Docker', 'Kubernetes', 'DevOps', 'Mobile Development', 'UI/UX'
   ];
 
-  const handleSave = () => {
-    console.log('Saving profile:', profileData);
-    setIsEditing(false);
-    // Here you would save the profile data
+  const handleSave = async () => {
+    try {
+      await updateProfile.mutateAsync(profileData);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset to original data if needed
+    // Reset to original data
+    if (profile) {
+      setProfileData({
+        name: profile.name || '',
+        phone: profile.phone || '',
+        country: profile.country || '',
+        birth_date: profile.birth_date || '',
+        email: profile.email || '',
+        skype: profile.skype || '',
+        specialties: profile.specialties || [],
+        wallet_address: profile.wallet_address || ''
+      });
+    }
   };
 
   const handleSpecialtyToggle = (specialty: string) => {
@@ -72,6 +111,22 @@ export const Profile = () => {
         : [...prev.specialties, specialty]
     }));
   };
+
+  if (!user) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">Please log in to view your profile.</div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">Loading profile...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8">
@@ -90,7 +145,7 @@ export const Profile = () => {
               <div className="flex gap-2">
                 {isEditing ? (
                   <>
-                    <Button onClick={handleSave} size="sm">
+                    <Button onClick={handleSave} size="sm" disabled={updateProfile.isPending}>
                       <Save className="h-4 w-4 mr-1" />
                       Save
                     </Button>
@@ -129,7 +184,7 @@ export const Profile = () => {
                   ) : (
                     <div className="flex items-center gap-2 p-2">
                       <User className="h-4 w-4 text-muted-foreground" />
-                      <span>{profileData.name}</span>
+                      <span>{profileData.name || 'Not set'}</span>
                     </div>
                   )}
                 </div>
@@ -145,7 +200,7 @@ export const Profile = () => {
                   ) : (
                     <div className="flex items-center gap-2 p-2">
                       <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span>{profileData.phone}</span>
+                      <span>{profileData.phone || 'Not set'}</span>
                     </div>
                   )}
                 </div>
@@ -166,24 +221,24 @@ export const Profile = () => {
                   ) : (
                     <div className="flex items-center gap-2 p-2">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span>{profileData.country}</span>
+                      <span>{profileData.country || 'Not set'}</span>
                     </div>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="birthDate">Data de Nascimento</Label>
+                  <Label htmlFor="birth_date">Data de Nascimento</Label>
                   {isEditing ? (
                     <Input
-                      id="birthDate"
+                      id="birth_date"
                       type="date"
-                      value={profileData.birthDate}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, birthDate: e.target.value }))}
+                      value={profileData.birth_date}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, birth_date: e.target.value }))}
                     />
                   ) : (
                     <div className="flex items-center gap-2 p-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>{new Date(profileData.birthDate).toLocaleDateString()}</span>
+                      <span>{profileData.birth_date ? new Date(profileData.birth_date).toLocaleDateString() : 'Not set'}</span>
                     </div>
                   )}
                 </div>
@@ -210,7 +265,7 @@ export const Profile = () => {
                   ) : (
                     <div className="flex items-center gap-2 p-2">
                       <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span>{profileData.email}</span>
+                      <span>{profileData.email || 'Not set'}</span>
                     </div>
                   )}
                 </div>
@@ -226,20 +281,28 @@ export const Profile = () => {
                   ) : (
                     <div className="flex items-center gap-2 p-2">
                       <User className="h-4 w-4 text-muted-foreground" />
-                      <span>{profileData.skype}</span>
+                      <span>{profileData.skype || 'Not set'}</span>
                     </div>
                   )}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Solana Address</Label>
-                <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
-                  <Wallet className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-mono text-sm">
-                    {walletAddress || '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgHkV'}
-                  </span>
-                </div>
+                <Label>Wallet Address</Label>
+                {isEditing ? (
+                  <Input
+                    value={profileData.wallet_address}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, wallet_address: e.target.value }))}
+                    placeholder="Enter your Solana wallet address"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
+                    <Wallet className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-mono text-sm">
+                      {profileData.wallet_address || 'Not set'}
+                    </span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -270,31 +333,16 @@ export const Profile = () => {
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {profileData.specialties.map(specialty => (
-                    <Badge key={specialty} variant="secondary">
-                      {specialty}
-                    </Badge>
-                  ))}
+                  {profileData.specialties.length > 0 ? (
+                    profileData.specialties.map(specialty => (
+                      <Badge key={specialty} variant="secondary">
+                        {specialty}
+                      </Badge>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground">No specialties set</p>
+                  )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Bio */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Bio</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isEditing ? (
-                <Textarea
-                  placeholder="Conte um pouco sobre sua experiência e especialidades..."
-                  value={profileData.bio}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
-                  className="min-h-24"
-                />
-              ) : (
-                <p className="text-muted-foreground">{profileData.bio}</p>
               )}
             </CardContent>
           </Card>
