@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Copy, Log-out, User } from 'lucide-react';
+import { Copy, LogOut, User } from 'lucide-react';
 
 export const WalletButton = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -68,7 +68,7 @@ export const WalletButton = () => {
           Profile
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleDisconnect}>
-          <Log-out className="mr-2 h-4 w-4" />
+          <LogOut className="mr-2 h-4 w-4" />
           Disconnect
         </DropdownMenuItem>
       </DropdownMenuContent>
