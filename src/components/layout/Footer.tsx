@@ -2,8 +2,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Code } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Footer = () => {
+  const { user } = useAuth();
+
   return (
     <footer className="border-t bg-background">
       <div className="container py-12">
@@ -29,6 +32,7 @@ export const Footer = () => {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/posts" className="hover:text-primary transition-colors">Browse Posts</Link></li>
               <li><Link to="/create" className="hover:text-primary transition-colors">Create Post</Link></li>
+              <li>{user && <Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>}</li>
             </ul>
           </div>
 
@@ -37,7 +41,7 @@ export const Footer = () => {
             <h3 className="font-medium mb-4">Status</h3>
             <div className="text-sm text-muted-foreground">
               <p className="bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 px-3 py-2 rounded-md">
-                ⚠️ Aplicativo experimental em fase de testes
+                ⚠️ This is a beta version - not production ready.
               </p>
             </div>
           </div>

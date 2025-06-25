@@ -32,15 +32,18 @@ export const Landing = () => {
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
               Connect with skilled developers for technical assistance. All payments are secured by smart contracts 
-              with automatic escrow and dispute resolution on Solana blockchain.
+              with automatic escrow and dispute resolution.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
               <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                Get Started
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <Link to="/create">
+                  Get Started
+                </Link>
               </Button>
               <Button variant="outline" size="lg">
-                Browse Requests
+                <Link to="/posts">
+                  Browse Requests
+                </Link>
               </Button>
             </div>
           </div>
@@ -101,7 +104,7 @@ export const Landing = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-24 bg-muted/30">
+      {/* <section className="py-24 bg-muted/30">
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -168,10 +171,10 @@ export const Landing = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-blue-600 to-purple-600">
+      {/* <section className="py-24 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="container text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             Ready to Get Technical Help?
@@ -188,7 +191,7 @@ export const Landing = () => {
             </Button>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };

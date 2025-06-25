@@ -1,7 +1,6 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -16,8 +15,8 @@ export const WalletButton = () => {
 
   const handleConnect = async () => {
     // Mock wallet connection - will be replaced with real Solana wallet adapter
-    setIsConnected(true);
-    setPublicKey('7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgHkV');
+    // setIsConnected(true);
+    // setPublicKey('7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgHkV');
   };
 
   const handleDisconnect = () => {
