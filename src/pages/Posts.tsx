@@ -13,54 +13,14 @@ import {
 } from '@/components/ui/select';
 import { Search, Filter, Clock, Star, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-// Mock data - will be replaced with real data
-const mockPosts = [
-  {
-    id: '1',
-    title: 'Help with React Performance Optimization',
-    description: 'Need assistance optimizing a React app that\'s experiencing slow renders. Looking for someone with experience in profiling and optimization techniques.',
-    value: 2.5,
-    status: 'open' as const,
-    category: 'frontend' as const,
-    tags: ['React', 'Performance', 'JavaScript'],
-    publisher: { displayName: 'Alice Dev', avatar: null },
-    createdAt: new Date('2024-01-15'),
-    applications: [],
-    deadline: new Date('2024-01-22')
-  },
-  {
-    id: '2',
-    title: 'Solana Smart Contract Integration',
-    description: 'Looking for help integrating my dApp with a custom Solana smart contract. Need guidance on Anchor framework and wallet connectivity.',
-    value: 5.0,
-    status: 'open' as const,
-    category: 'blockchain' as const,
-    tags: ['Solana', 'Anchor', 'Web3'],
-    publisher: { displayName: 'Bob Builder', avatar: null },
-    createdAt: new Date('2024-01-14'),
-    applications: [],
-    deadline: new Date('2024-01-25')
-  },
-  {
-    id: '3',
-    title: 'Database Schema Design Review',
-    description: 'Need an experienced database architect to review my PostgreSQL schema design for a SaaS application. Looking for optimization suggestions.',
-    value: 1.8,
-    status: 'in_progress' as const,
-    category: 'backend' as const,
-    tags: ['PostgreSQL', 'Database', 'Architecture'],
-    publisher: { displayName: 'Carol Tech', avatar: null },
-    createdAt: new Date('2024-01-13'),
-    applications: [],
-    deadline: new Date('2024-01-20')
-  }
-];
+import { usePosts } from '@/hooks/usePosts';
 
 export const Posts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+  
+  const { data: posts = [], isLoading, error } = usePosts();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -81,6 +41,45 @@ export const Posts = () => {
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   };
+
+  // Filter and sort posts
+  const filteredPosts = posts.filter(post => {
+    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         post.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const sortedPosts = [...filteredPosts].sort((a, b) => {
+    switch (sortBy) {
+      case 'newest':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      case 'value_high':
+        return b.value - a.value;
+      case 'value_low':
+        return a.value - b.value;
+      case 'deadline':
+        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+      default:
+        return 0;
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">Loading posts...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container py-8">
+        <div className="text-center text-red-500">Error loading posts. Please try again.</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8">
@@ -133,7 +132,7 @@ export const Posts = () => {
 
       {/* Posts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockPosts.map((post) => (
+        {sortedPosts.map((post) => (
           <Card key={post.id} className="group hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between mb-2">
@@ -159,14 +158,14 @@ export const Posts = () => {
                 <Badge className={getCategoryColor(post.category)} variant="outline">
                   {post.category}
                 </Badge>
-                {post.tags.slice(0, 2).map((tag) => (
+                {post.tags?.slice(0, 2).map((tag) => (
                   <Badge key={tag} variant="secondary" className="text-xs">
                     {tag}
                   </Badge>
                 ))}
-                {post.tags.length > 2 && (
+                {(post.tags?.length || 0) > 2 && (
                   <Badge variant="secondary" className="text-xs">
-                    +{post.tags.length - 2}
+                    +{(post.tags?.length || 0) - 2}
                   </Badge>
                 )}
               </div>
@@ -174,11 +173,11 @@ export const Posts = () => {
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {Math.ceil((post.deadline!.getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days left
+                  {Math.ceil((new Date(post.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days left
                 </div>
                 <div className="flex items-center gap-1">
                   <Star className="h-3 w-3" />
-                  {post.publisher.displayName}
+                  {post.profiles?.name || 'Unknown'}
                 </div>
               </div>
 
@@ -193,12 +192,11 @@ export const Posts = () => {
         ))}
       </div>
 
-      {/* Load More */}
-      <div className="text-center mt-12">
-        <Button variant="outline" size="lg">
-          Load More Requests
-        </Button>
-      </div>
+      {sortedPosts.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No posts found matching your criteria.</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -9,7 +9,134 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          applied_at: string
+          bid_amount: number
+          helper_id: string | null
+          id: string
+          message: string
+          post_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applied_at?: string
+          bid_amount: number
+          helper_id?: string | null
+          id?: string
+          message: string
+          post_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applied_at?: string
+          bid_amount?: number
+          helper_id?: string | null
+          id?: string
+          message?: string
+          post_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          category: string
+          created_at: string
+          deadline: string
+          description: string
+          id: string
+          publisher_id: string | null
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          deadline: string
+          description: string
+          id?: string
+          publisher_id?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          deadline?: string
+          description?: string
+          id?: string
+          publisher_id?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          birth_date: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          skype: string | null
+          specialties: string[] | null
+          updated_at: string
+          user_id: string | null
+          wallet_address: string | null
+        }
+        Insert: {
+          birth_date?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          skype?: string | null
+          specialties?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+          wallet_address?: string | null
+        }
+        Update: {
+          birth_date?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          skype?: string | null
+          specialties?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,9 +14,14 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, DollarSign, Clock } from 'lucide-react';
+import { useCreatePost } from '@/hooks/usePosts';
+import { useAuth } from '@/hooks/useAuth';
 
 export const CreatePost = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const createPostMutation = useCreatePost();
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -26,7 +30,13 @@ export const CreatePost = () => {
     tags: '',
     deadline: ''
   });
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect if not authenticated
+  React.useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
 
   const platformFeePercent = 5;
   const fixedTransactionFee = 0.01;
@@ -42,23 +52,31 @@ export const CreatePost = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     
+    const postData = {
+      title: formData.title,
+      description: formData.description,
+      value: parseFloat(formData.value),
+      category: formData.category,
+      tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      deadline: formData.deadline,
+    };
+
     try {
-      // Simulate transaction
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Creating post:', formData);
+      await createPostMutation.mutateAsync(postData);
       navigate('/posts');
     } catch (error) {
       console.error('Error creating post:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  if (!user) {
+    return <div>Redirecting to login...</div>;
+  }
 
   return (
     <div className="container py-8">
@@ -191,9 +209,9 @@ export const CreatePost = () => {
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={isLoading || !formData.title || !formData.description || !formData.value}
+                disabled={createPostMutation.isPending || !formData.title || !formData.description || !formData.value}
               >
-                {isLoading ? 'Creating Post...' : 'Create Post & Deposit Funds'}
+                {createPostMutation.isPending ? 'Creating Post...' : 'Create Post & Deposit Funds'}
               </Button>
             </form>
           </CardContent>
