@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -44,17 +43,31 @@ export const usePosts = () => {
   return useQuery({
     queryKey: ['posts'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: postsData, error: postsError } = await supabase
         .from('posts')
-        .select(`
-          *,
-          profiles!posts_publisher_id_fkey(name, wallet_address)
-        `)
+        .select('*')
         .eq('status', 'open')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data || [];
+      if (postsError) throw postsError;
+
+      // Get profiles for each post
+      const postsWithProfiles = await Promise.all(
+        (postsData || []).map(async (post) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('name, wallet_address')
+            .eq('user_id', post.publisher_id)
+            .single();
+
+          return {
+            ...post,
+            profiles: profile || { name: 'Unknown', wallet_address: '' }
+          };
+        })
+      );
+
+      return postsWithProfiles;
     },
   });
 };
@@ -63,31 +76,54 @@ export const usePost = (id: string) => {
   return useQuery({
     queryKey: ['post', id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: postData, error: postError } = await supabase
         .from('posts')
-        .select(`
-          *,
-          profiles!posts_publisher_id_fkey(name, wallet_address)
-        `)
+        .select('*')
         .eq('id', id)
         .single();
 
-      if (error) throw error;
-      
-      // Get applications separately
+      if (postError) throw postError;
+
+      // Get publisher profile
+      const { data: publisherProfile } = await supabase
+        .from('profiles')
+        .select('name, wallet_address')
+        .eq('user_id', postData.publisher_id)
+        .single();
+
+      // Get applications with helper profiles
       const { data: applications, error: appsError } = await supabase
         .from('applications')
-        .select(`
-          *,
-          profiles!applications_helper_id_fkey(name, email, phone, skype, wallet_address)
-        `)
+        .select('*')
         .eq('post_id', id);
 
       if (appsError) throw appsError;
 
+      const applicationsWithProfiles = await Promise.all(
+        (applications || []).map(async (app) => {
+          const { data: helperProfile } = await supabase
+            .from('profiles')
+            .select('name, email, phone, skype, wallet_address')
+            .eq('user_id', app.helper_id)
+            .single();
+
+          return {
+            ...app,
+            profiles: helperProfile || { 
+              name: 'Unknown', 
+              email: '', 
+              phone: '', 
+              skype: '', 
+              wallet_address: '' 
+            }
+          };
+        })
+      );
+
       return {
-        ...data,
-        applications: applications || []
+        ...postData,
+        profiles: publisherProfile || { name: 'Unknown', wallet_address: '' },
+        applications: applicationsWithProfiles
       };
     },
   });
@@ -114,17 +150,35 @@ export const useUserPosts = () => {
         (data || []).map(async (post) => {
           const { data: applications, error: appsError } = await supabase
             .from('applications')
-            .select(`
-              *,
-              profiles!applications_helper_id_fkey(name, email, phone, skype, wallet_address)
-            `)
+            .select('*')
             .eq('post_id', post.id);
 
           if (appsError) throw appsError;
 
+          const applicationsWithProfiles = await Promise.all(
+            (applications || []).map(async (app) => {
+              const { data: helperProfile } = await supabase
+                .from('profiles')
+                .select('name, email, phone, skype, wallet_address')
+                .eq('user_id', app.helper_id)
+                .single();
+
+              return {
+                ...app,
+                profiles: helperProfile || { 
+                  name: 'Unknown', 
+                  email: '', 
+                  phone: '', 
+                  skype: '', 
+                  wallet_address: '' 
+                }
+              };
+            })
+          );
+
           return {
             ...post,
-            applications: applications || []
+            applications: applicationsWithProfiles
           };
         })
       );
