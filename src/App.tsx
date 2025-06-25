@@ -7,6 +7,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Landing } from "@/pages/Landing";
 import { Posts } from "@/pages/Posts";
+import { CreatePost } from "@/pages/CreatePost";
+import { PostDetail } from "@/pages/PostDetail";
+import { Dashboard } from "@/pages/Dashboard";
+import { Profile } from "@/pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +25,10 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/posts" element={<Posts />} />
+            <Route path="/posts/:id" element={<PostDetail />} />
+            <Route path="/create" element={<CreatePost />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile/:walletAddress" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

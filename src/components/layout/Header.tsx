@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Code, Search, Bell, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Code } from 'lucide-react';
 import { WalletButton } from '@/components/wallet/WalletButton';
 
 export const Header = () => {
@@ -15,7 +14,7 @@ export const Header = () => {
             <Code className="h-5 w-5 text-white" />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            DevHelp
+            Coduet
           </span>
         </Link>
 
@@ -31,27 +30,12 @@ export const Header = () => {
             to="/create" 
             className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
           >
-            Post Request
-          </Link>
-          <Link 
-            to="/dashboard" 
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            Dashboard
+            Create Post
           </Link>
         </nav>
 
         {/* Actions */}
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" className="hidden md:flex">
-            <Search className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" className="hidden md:flex">
-            <Bell className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" className="hidden md:flex">
-            <User className="h-4 w-4" />
-          </Button>
           <WalletButton />
         </div>
       </div>

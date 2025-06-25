@@ -7,7 +7,7 @@ export const Footer = () => {
   return (
     <footer className="border-t bg-background">
       <div className="container py-12">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center space-x-2 mb-4">
@@ -15,7 +15,7 @@ export const Footer = () => {
                 <Code className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                DevHelp
+                Coduet
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">
@@ -28,36 +28,23 @@ export const Footer = () => {
             <h3 className="font-medium mb-4">Platform</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/posts" className="hover:text-primary transition-colors">Browse Posts</Link></li>
-              <li><Link to="/create" className="hover:text-primary transition-colors">Post Request</Link></li>
-              <li><Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
-              <li><Link to="/how-it-works" className="hover:text-primary transition-colors">How It Works</Link></li>
+              <li><Link to="/create" className="hover:text-primary transition-colors">Create Post</Link></li>
             </ul>
           </div>
 
-          {/* Community */}
+          {/* Status */}
           <div>
-            <h3 className="font-medium mb-4">Community</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-colors">Discord</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Twitter</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">GitHub</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Documentation</a></li>
-            </ul>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <h3 className="font-medium mb-4">Legal</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-              <li><Link to="/security" className="hover:text-primary transition-colors">Security</Link></li>
-            </ul>
+            <h3 className="font-medium mb-4">Status</h3>
+            <div className="text-sm text-muted-foreground">
+              <p className="bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 px-3 py-2 rounded-md">
+                ⚠️ Aplicativo experimental em fase de testes
+              </p>
+            </div>
           </div>
         </div>
 
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 DevHelp Protocol. Built on Solana. All rights reserved.</p>
+          <p>&copy; 2024 Coduet Protocol. Built on Solana. All rights reserved.</p>
         </div>
       </div>
     </footer>
