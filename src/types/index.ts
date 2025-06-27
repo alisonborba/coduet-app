@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   walletAddress: string;
@@ -21,7 +20,7 @@ export interface Post {
   title: string;
   description: string;
   value: number; // SOL amount
-  status: 'open' | 'in_progress' | 'completed' | 'cancelled';
+  status: "open" | "in_progress" | "completed" | "cancelled";
   publisherId: string;
   publisher: User;
   helperId?: string;
@@ -30,7 +29,13 @@ export interface Post {
   updatedAt: Date;
   deadline?: Date;
   tags: string[];
-  category: 'frontend' | 'backend' | 'blockchain' | 'mobile' | 'devops' | 'other';
+  category:
+    | "frontend"
+    | "backend"
+    | "blockchain"
+    | "mobile"
+    | "devops"
+    | "other";
   applications: Application[];
 }
 
@@ -41,16 +46,16 @@ export interface Application {
   helper: User;
   message: string;
   proposedValue?: number;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: "pending" | "accepted" | "rejected";
   createdAt: Date;
 }
 
 export interface Transaction {
   id: string;
   postId: string;
-  type: 'escrow_deposit' | 'payment_release' | 'refund' | 'platform_fee';
+  type: "escrow_deposit" | "payment_release" | "refund" | "platform_fee";
   amount: number;
-  status: 'pending' | 'confirmed' | 'failed';
+  status: "pending" | "confirmed" | "failed";
   txHash?: string;
   createdAt: Date;
 }

@@ -1,8 +1,7 @@
-
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from './useAuth';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "./useAuth";
 
 export interface Profile {
   id: string;
@@ -24,17 +23,17 @@ export const useProfile = (userId?: string) => {
   const targetUserId = userId || user?.id;
 
   return useQuery({
-    queryKey: ['profile', targetUserId],
+    queryKey: ["profile", targetUserId],
     queryFn: async () => {
       if (!targetUserId) return null;
 
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', targetUserId)
+        .from("profiles")
+        .select("*")
+        .eq("user_id", targetUserId)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== "PGRST116") throw error;
       return data as Profile | null;
     },
     enabled: !!targetUserId,
@@ -48,10 +47,10 @@ export const useUpdateProfile = () => {
 
   return useMutation({
     mutationFn: async (profileData: Partial<Profile> & { name: string }) => {
-      if (!user) throw new Error('User not authenticated');
+      if (!user) throw new Error("User not authenticated");
 
       const { data, error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .upsert({
           user_id: user.id,
           name: profileData.name,
@@ -71,7 +70,7 @@ export const useUpdateProfile = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully.",

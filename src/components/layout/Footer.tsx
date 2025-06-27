@@ -1,8 +1,7 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Code } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Code } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Footer = () => {
   const { user } = useAuth();
@@ -22,7 +21,8 @@ export const Footer = () => {
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Decentralized marketplace for developer technical assistance with escrow-protected payments.
+              Decentralized marketplace for developer technical assistance with
+              escrow-protected payments.
             </p>
           </div>
 
@@ -30,9 +30,32 @@ export const Footer = () => {
           <div>
             <h3 className="font-medium mb-4">Platform</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/posts" className="hover:text-primary transition-colors">Browse Posts</Link></li>
-              <li><Link to="/create" className="hover:text-primary transition-colors">Create Post</Link></li>
-              <li>{user && <Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>}</li>
+              <li>
+                <Link
+                  to="/posts"
+                  className="hover:text-primary transition-colors"
+                >
+                  Browse Posts
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/create"
+                  className="hover:text-primary transition-colors"
+                >
+                  Create Post
+                </Link>
+              </li>
+              <li>
+                {user && (
+                  <Link
+                    to="/dashboard"
+                    className="hover:text-primary transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                )}
+              </li>
             </ul>
           </div>
 
@@ -48,7 +71,9 @@ export const Footer = () => {
         </div>
 
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 Coduet Protocol. Built on Solana. All rights reserved.</p>
+          <p>
+            &copy; 2024 Coduet Protocol. Built on Solana. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

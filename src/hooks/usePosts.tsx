@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from './useAuth';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "./useAuth";
 
 export interface Post {
   id: string;
@@ -11,7 +11,7 @@ export interface Post {
   category: string;
   tags: string[];
   deadline: string;
-  status: 'open' | 'in_progress' | 'completed' | 'cancelled';
+  status: "open" | "in_progress" | "completed" | "cancelled";
   publisher_id: string;
   created_at: string;
   updated_at: string;
@@ -28,7 +28,7 @@ export interface Application {
   helper_id: string;
   bid_amount: number;
   message: string;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: "pending" | "accepted" | "rejected";
   applied_at: string;
   profiles?: {
     name: string;
@@ -41,28 +41,28 @@ export interface Application {
 
 export const usePosts = () => {
   return useQuery({
-    queryKey: ['posts'],
+    queryKey: ["posts"],
     queryFn: async () => {
       const { data: postsData, error: postsError } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('status', 'open')
-        .order('created_at', { ascending: false });
+        .from("posts")
+        .select("*")
+        .eq("status", "open")
+        .order("created_at", { ascending: false });
 
       if (postsError) throw postsError;
 
       // Get profiles for each post
       const postsWithProfiles = await Promise.all(
-        (postsData || []).map(async (post) => {
+        (postsData || []).map(async post => {
           const { data: profile } = await supabase
-            .from('profiles')
-            .select('name, wallet_address')
-            .eq('user_id', post.publisher_id)
+            .from("profiles")
+            .select("name, wallet_address")
+            .eq("user_id", post.publisher_id)
             .single();
 
           return {
             ...post,
-            profiles: profile || { name: 'Unknown', wallet_address: '' }
+            profiles: profile || { name: "Unknown", wallet_address: "" },
           };
         })
       );
@@ -74,56 +74,56 @@ export const usePosts = () => {
 
 export const usePost = (id: string) => {
   return useQuery({
-    queryKey: ['post', id],
+    queryKey: ["post", id],
     queryFn: async () => {
       const { data: postData, error: postError } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('id', id)
+        .from("posts")
+        .select("*")
+        .eq("id", id)
         .single();
 
       if (postError) throw postError;
 
       // Get publisher profile
       const { data: publisherProfile } = await supabase
-        .from('profiles')
-        .select('name, wallet_address')
-        .eq('user_id', postData.publisher_id)
+        .from("profiles")
+        .select("name, wallet_address")
+        .eq("user_id", postData.publisher_id)
         .single();
 
       // Get applications with helper profiles
       const { data: applications, error: appsError } = await supabase
-        .from('applications')
-        .select('*')
-        .eq('post_id', id);
+        .from("applications")
+        .select("*")
+        .eq("post_id", id);
 
       if (appsError) throw appsError;
 
       const applicationsWithProfiles = await Promise.all(
-        (applications || []).map(async (app) => {
+        (applications || []).map(async app => {
           const { data: helperProfile } = await supabase
-            .from('profiles')
-            .select('name, email, phone, skype, wallet_address')
-            .eq('user_id', app.helper_id)
+            .from("profiles")
+            .select("name, email, phone, skype, wallet_address")
+            .eq("user_id", app.helper_id)
             .single();
 
           return {
             ...app,
-            profiles: helperProfile || { 
-              name: 'Unknown', 
-              email: '', 
-              phone: '', 
-              skype: '', 
-              wallet_address: '' 
-            }
+            profiles: helperProfile || {
+              name: "Unknown",
+              email: "",
+              phone: "",
+              skype: "",
+              wallet_address: "",
+            },
           };
         })
       );
 
       return {
         ...postData,
-        profiles: publisherProfile || { name: 'Unknown', wallet_address: '' },
-        applications: applicationsWithProfiles
+        profiles: publisherProfile || { name: "Unknown", wallet_address: "" },
+        applications: applicationsWithProfiles,
       };
     },
   });
@@ -131,54 +131,54 @@ export const usePost = (id: string) => {
 
 export const useUserPosts = () => {
   const { user } = useAuth();
-  
+
   return useQuery({
-    queryKey: ['user-posts', user?.id],
+    queryKey: ["user-posts", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      
+
       const { data, error } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('publisher_id', user.id)
-        .order('created_at', { ascending: false });
+        .from("posts")
+        .select("*")
+        .eq("publisher_id", user.id)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
       // Get applications for each post
       const postsWithApplications = await Promise.all(
-        (data || []).map(async (post) => {
+        (data || []).map(async post => {
           const { data: applications, error: appsError } = await supabase
-            .from('applications')
-            .select('*')
-            .eq('post_id', post.id);
+            .from("applications")
+            .select("*")
+            .eq("post_id", post.id);
 
           if (appsError) throw appsError;
 
           const applicationsWithProfiles = await Promise.all(
-            (applications || []).map(async (app) => {
+            (applications || []).map(async app => {
               const { data: helperProfile } = await supabase
-                .from('profiles')
-                .select('name, email, phone, skype, wallet_address')
-                .eq('user_id', app.helper_id)
+                .from("profiles")
+                .select("name, email, phone, skype, wallet_address")
+                .eq("user_id", app.helper_id)
                 .single();
 
               return {
                 ...app,
-                profiles: helperProfile || { 
-                  name: 'Unknown', 
-                  email: '', 
-                  phone: '', 
-                  skype: '', 
-                  wallet_address: '' 
-                }
+                profiles: helperProfile || {
+                  name: "Unknown",
+                  email: "",
+                  phone: "",
+                  skype: "",
+                  wallet_address: "",
+                },
               };
             })
           );
 
           return {
             ...post,
-            applications: applicationsWithProfiles
+            applications: applicationsWithProfiles,
           };
         })
       );
@@ -203,10 +203,10 @@ export const useCreatePost = () => {
       tags: string[];
       deadline: string;
     }) => {
-      if (!user) throw new Error('User not authenticated');
+      if (!user) throw new Error("User not authenticated");
 
       const { data, error } = await supabase
-        .from('posts')
+        .from("posts")
         .insert({
           ...postData,
           publisher_id: user.id,
@@ -218,8 +218,8 @@ export const useCreatePost = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['user-posts'] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["user-posts"] });
       toast({
         title: "Post created successfully",
         description: "Your help request has been published.",
@@ -246,10 +246,10 @@ export const useCreateApplication = () => {
       bid_amount: number;
       message: string;
     }) => {
-      if (!user) throw new Error('User not authenticated');
+      if (!user) throw new Error("User not authenticated");
 
       const { data, error } = await supabase
-        .from('applications')
+        .from("applications")
         .insert({
           ...applicationData,
           helper_id: user.id,
@@ -261,8 +261,8 @@ export const useCreateApplication = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['post'] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["post"] });
       toast({
         title: "Application submitted",
         description: "Your bid has been submitted successfully.",
@@ -283,32 +283,38 @@ export const useUpdateApplicationStatus = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ applicationId, status }: { applicationId: string; status: 'accepted' | 'rejected' }) => {
+    mutationFn: async ({
+      applicationId,
+      status,
+    }: {
+      applicationId: string;
+      status: "accepted" | "rejected";
+    }) => {
       const { data, error } = await supabase
-        .from('applications')
+        .from("applications")
         .update({ status })
-        .eq('id', applicationId)
+        .eq("id", applicationId)
         .select()
         .single();
 
       if (error) throw error;
 
       // If accepting, update post status to in_progress and send email
-      if (status === 'accepted') {
+      if (status === "accepted") {
         const { error: postError } = await supabase
-          .from('posts')
-          .update({ status: 'in_progress' })
-          .eq('id', data.post_id);
+          .from("posts")
+          .update({ status: "in_progress" })
+          .eq("id", data.post_id);
 
         if (postError) throw postError;
 
         // Send email notification
         try {
-          await supabase.functions.invoke('send-bid-acceptance-email', {
-            body: { applicationId }
+          await supabase.functions.invoke("send-bid-acceptance-email", {
+            body: { applicationId },
           });
         } catch (emailError) {
-          console.error('Failed to send email notification:', emailError);
+          console.error("Failed to send email notification:", emailError);
           // Don't fail the whole operation if email fails
         }
       }
@@ -316,9 +322,9 @@ export const useUpdateApplicationStatus = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['post'] });
-      queryClient.invalidateQueries({ queryKey: ['user-posts'] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["post"] });
+      queryClient.invalidateQueries({ queryKey: ["user-posts"] });
       toast({
         title: "Application updated",
         description: "The application status has been updated.",
@@ -341,9 +347,9 @@ export const useCompletePost = () => {
   return useMutation({
     mutationFn: async (postId: string) => {
       const { data, error } = await supabase
-        .from('posts')
-        .update({ status: 'completed' })
-        .eq('id', postId)
+        .from("posts")
+        .update({ status: "completed" })
+        .eq("id", postId)
         .select()
         .single();
 
@@ -351,12 +357,13 @@ export const useCompletePost = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['post'] });
-      queryClient.invalidateQueries({ queryKey: ['user-posts'] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["post"] });
+      queryClient.invalidateQueries({ queryKey: ["user-posts"] });
       toast({
         title: "Post completed",
-        description: "The post has been marked as completed. You can now proceed with payment.",
+        description:
+          "The post has been marked as completed. You can now proceed with payment.",
       });
     },
     onError: (error: any) => {
@@ -376,9 +383,9 @@ export const useCancelPost = () => {
   return useMutation({
     mutationFn: async (postId: string) => {
       const { data, error } = await supabase
-        .from('posts')
-        .update({ status: 'cancelled' })
-        .eq('id', postId)
+        .from("posts")
+        .update({ status: "cancelled" })
+        .eq("id", postId)
         .select()
         .single();
 
@@ -386,9 +393,9 @@ export const useCancelPost = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['post'] });
-      queryClient.invalidateQueries({ queryKey: ['user-posts'] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["post"] });
+      queryClient.invalidateQueries({ queryKey: ["user-posts"] });
       toast({
         title: "Post cancelled",
         description: "The post has been cancelled.",
@@ -412,18 +419,18 @@ export const useCancelAcceptedBid = () => {
     mutationFn: async (postId: string) => {
       // First, reject all accepted applications for this post
       const { error: appsError } = await supabase
-        .from('applications')
-        .update({ status: 'rejected' })
-        .eq('post_id', postId)
-        .eq('status', 'accepted');
+        .from("applications")
+        .update({ status: "rejected" })
+        .eq("post_id", postId)
+        .eq("status", "accepted");
 
       if (appsError) throw appsError;
 
       // Then, set post status back to open
       const { data, error } = await supabase
-        .from('posts')
-        .update({ status: 'open' })
-        .eq('id', postId)
+        .from("posts")
+        .update({ status: "open" })
+        .eq("id", postId)
         .select()
         .single();
 
@@ -431,12 +438,13 @@ export const useCancelAcceptedBid = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['post'] });
-      queryClient.invalidateQueries({ queryKey: ['user-posts'] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["post"] });
+      queryClient.invalidateQueries({ queryKey: ["user-posts"] });
       toast({
         title: "Accepted bid cancelled",
-        description: "The accepted bid has been cancelled and the post is now open for new applications.",
+        description:
+          "The accepted bid has been cancelled and the post is now open for new applications.",
       });
     },
     onError: (error: any) => {

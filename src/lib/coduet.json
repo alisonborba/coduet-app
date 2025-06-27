@@ -1,0 +1,615 @@
+{
+  "address": "G5gcEvNxXPxsUwKmGNxNheKq2j5nBghciJpCyooPCKdd",
+  "metadata": {
+    "name": "coduet",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "DevHelpProtocol - Smart contract for developer hiring"
+  },
+  "instructions": [
+    {
+      "name": "accept_helper",
+      "discriminator": [
+        185,
+        215,
+        221,
+        137,
+        109,
+        218,
+        17,
+        143
+      ],
+      "accounts": [
+        {
+          "name": "publisher",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "post",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "post_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "help_request",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  101,
+                  108,
+                  112,
+                  95,
+                  114,
+                  101,
+                  113,
+                  117,
+                  101,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "post"
+              },
+              {
+                "kind": "account",
+                "path": "applicant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "applicant"
+        },
+        {
+          "name": "main_vault",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "post_id",
+          "type": "u64"
+        },
+        {
+          "name": "applicant",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "apply_help",
+      "discriminator": [
+        226,
+        57,
+        113,
+        97,
+        57,
+        59,
+        193,
+        11
+      ],
+      "accounts": [
+        {
+          "name": "applicant",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "post",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "post_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "main_vault",
+          "writable": true
+        },
+        {
+          "name": "help_request",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  101,
+                  108,
+                  112,
+                  95,
+                  114,
+                  101,
+                  113,
+                  117,
+                  101,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "post"
+              },
+              {
+                "kind": "account",
+                "path": "applicant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "post_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "cancel_post",
+      "discriminator": [
+        118,
+        74,
+        85,
+        57,
+        218,
+        233,
+        220,
+        200
+      ],
+      "accounts": [
+        {
+          "name": "publisher",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "main_vault",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "post",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "post_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "platform_fee_recipient",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "post_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "complete_contract",
+      "discriminator": [
+        129,
+        158,
+        69,
+        250,
+        180,
+        196,
+        197,
+        185
+      ],
+      "accounts": [
+        {
+          "name": "publisher",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "main_vault",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "post",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "post_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "helper",
+          "writable": true
+        },
+        {
+          "name": "platform_fee_recipient",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "post_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "create_post",
+      "discriminator": [
+        123,
+        92,
+        184,
+        29,
+        231,
+        24,
+        15,
+        202
+      ],
+      "accounts": [
+        {
+          "name": "publisher",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "post",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "post_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "main_vault",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "post_id",
+          "type": "u64"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "HelpRequest",
+      "discriminator": [
+        125,
+        85,
+        192,
+        87,
+        157,
+        53,
+        23,
+        169
+      ]
+    },
+    {
+      "name": "Post",
+      "discriminator": [
+        8,
+        147,
+        90,
+        186,
+        185,
+        56,
+        192,
+        150
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidHourlyRate",
+      "msg": "Invalid hourly rate - must be greater than 0"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidEstimatedHours",
+      "msg": "Invalid estimated hours - must be between 1 and 255"
+    },
+    {
+      "code": 6002,
+      "name": "PostNotOpen",
+      "msg": "Post is not open for applications"
+    },
+    {
+      "code": 6003,
+      "name": "PostAlreadyCompleted",
+      "msg": "Post is already completed"
+    },
+    {
+      "code": 6004,
+      "name": "PostAlreadyHasHelper",
+      "msg": "Post already has an accepted helper"
+    },
+    {
+      "code": 6005,
+      "name": "HelpRequestNotFound",
+      "msg": "Help request not found"
+    },
+    {
+      "code": 6006,
+      "name": "HelpRequestNotPending",
+      "msg": "Help request is not pending"
+    },
+    {
+      "code": 6007,
+      "name": "UnauthorizedPublisher",
+      "msg": "Only publisher can perform this action"
+    },
+    {
+      "code": 6008,
+      "name": "CannotCancelWithHelper",
+      "msg": "Cannot cancel post with accepted helper"
+    },
+    {
+      "code": 6009,
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds for post creation"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidPlatformFee",
+      "msg": "Invalid platform fee"
+    },
+    {
+      "code": 6011,
+      "name": "PostNotFound",
+      "msg": "Post not found"
+    },
+    {
+      "code": 6012,
+      "name": "AlreadyApplied",
+      "msg": "User already applied to this post"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidPostId",
+      "msg": "Invalid post ID"
+    },
+    {
+      "code": 6014,
+      "name": "PostExpired",
+      "msg": "Post has expired"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidTitleLength",
+      "msg": "Invalid title length"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidDescriptionLength",
+      "msg": "Invalid description length"
+    },
+    {
+      "code": 6017,
+      "name": "ArithmeticOverflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6018,
+      "name": "InvalidValue",
+      "msg": "Invalid value"
+    }
+  ],
+  "types": [
+    {
+      "name": "HelpRequest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "post_id",
+            "type": "u64"
+          },
+          {
+            "name": "applicant",
+            "type": "pubkey"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "HelpRequestStatus"
+              }
+            }
+          },
+          {
+            "name": "applied_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HelpRequestStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Accepted"
+          },
+          {
+            "name": "Rejected"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Post",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "u64"
+          },
+          {
+            "name": "publisher",
+            "type": "pubkey"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "value",
+            "type": "u64"
+          },
+          {
+            "name": "is_open",
+            "type": "bool"
+          },
+          {
+            "name": "platform_fee",
+            "type": "u64"
+          },
+          {
+            "name": "accepted_helper",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "is_completed",
+            "type": "bool"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "expires_at",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}

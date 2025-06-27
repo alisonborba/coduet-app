@@ -1,10 +1,8 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Code, User, LayoutDashboard } from 'lucide-react';
-import { WalletButton } from '@/components/wallet/WalletButton';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
+import { Link } from "react-router-dom";
+import { Code, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export const Header = () => {
   const { user } = useAuth();
@@ -24,21 +22,21 @@ export const Header = () => {
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          <Link 
-            to="/posts" 
+          <Link
+            to="/posts"
             className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
           >
             Browse Posts
           </Link>
-          <Link 
-            to="/create" 
+          <Link
+            to="/create"
             className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
           >
             Create Post
           </Link>
           {user && (
-            <Link 
-              to="/dashboard" 
+            <Link
+              to="/dashboard"
               className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               Dashboard
@@ -55,7 +53,7 @@ export const Header = () => {
               </Button>
             </Link>
           )}
-          <WalletButton />
+          <WalletMultiButton />
         </div>
       </div>
     </header>

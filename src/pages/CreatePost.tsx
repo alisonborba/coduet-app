@@ -1,46 +1,53 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { 
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { AlertCircle, DollarSign, Clock } from 'lucide-react';
-import { useCreatePost } from '@/hooks/usePosts';
-import { useAuth } from '@/hooks/useAuth';
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
+import { useWallet } from "@solana/wallet-adapter-react";
+import * as anchor from "@coral-xyz/anchor";
+import { AlertCircle, DollarSign, Clock } from "lucide-react";
+import { useCreatePost } from "@/hooks/usePosts";
+import { useAuth } from "@/hooks/useAuth";
+import { getProgram } from "@/lib/getProgram";
+import { Buffer } from "buffer";
+import { mainWalletPublicKey } from "@/hooks/walletProvider";
 
 export const CreatePost = () => {
   const navigate = useNavigate();
+  const wallet = useWallet();
   const { user } = useAuth();
   const createPostMutation = useCreatePost();
-  
+
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    value: '',
-    category: '',
-    tags: '',
-    deadline: ''
+    title: "",
+    description: "",
+    value: "",
+    category: "",
+    tags: "",
+    deadline: "",
   });
 
   // Redirect if not authenticated
   React.useEffect(() => {
     if (!user) {
-      navigate('/auth');
+      navigate("/auth");
     }
   }, [user, navigate]);
 
   const platformFeePercent = 5;
   const fixedTransactionFee = 0.01;
-  
+
   const calculateFees = () => {
     const value = parseFloat(formData.value) || 0;
     const platformFee = value * (platformFeePercent / 100);
@@ -51,22 +58,58 @@ export const CreatePost = () => {
   const { platformFee, totalDeposit } = calculateFees();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    if (!user || !wallet?.publicKey) return;
+
     e.preventDefault();
-    
+
     const postData = {
       title: formData.title,
       description: formData.description,
       value: parseFloat(formData.value),
       category: formData.category,
-      tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      tags: formData.tags
+        .split(",")
+        .map(tag => tag.trim())
+        .filter(Boolean),
       deadline: formData.deadline,
     };
 
+    // Program data
+    const postId = new anchor.BN(Date.now());
+    const value = new anchor.BN(postData.value * LAMPORTS_PER_SOL);
+    const program = getProgram(wallet);
+    window.Buffer = Buffer;
+    const [postPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("post"), postId.toArrayLike(Buffer, "le", 8)],
+      program.programId
+    );
+
+    try {
+      // Run anchor transaction to create post
+      const tx = await program.methods
+      .createPost(postId, postData.title, postData.description, value)
+      .accounts({
+        post: postPda,
+        publisher: wallet.publicKey,
+        mainVault: mainWalletPublicKey,
+        systemProgram: SystemProgram.programId,
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+      })
+      .rpc();
+
+      console.log('tx', tx);
+    } catch (error) {
+      // @todo - show error message to user
+      console.error("Error creating post:", error);
+      return;
+    }
+
     try {
       await createPostMutation.mutateAsync(postData);
-      navigate('/posts');
+      navigate("/posts");
     } catch (error) {
-      console.error('Error creating post:', error);
+      // @todo - show error message to user
+      console.error("Error creating post:", error);
     }
   };
 
@@ -84,7 +127,8 @@ export const CreatePost = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Create Help Request</h1>
           <p className="text-muted-foreground">
-            Post your technical challenge and get help from experienced developers
+            Post your technical challenge and get help from experienced
+            developers
           </p>
         </div>
 
@@ -100,7 +144,7 @@ export const CreatePost = () => {
                   id="title"
                   placeholder="Describe your technical challenge in a few words"
                   value={formData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  onChange={e => handleInputChange("title", e.target.value)}
                   required
                 />
               </div>
@@ -111,7 +155,9 @@ export const CreatePost = () => {
                   id="description"
                   placeholder="Provide detailed information about what you need help with, your current setup, what you've tried, and what you're looking to achieve..."
                   value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onChange={e =>
+                    handleInputChange("description", e.target.value)
+                  }
                   className="min-h-32"
                   required
                 />
@@ -120,7 +166,12 @@ export const CreatePost = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
-                  <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+                  <Select
+                    value={formData.category}
+                    onValueChange={value =>
+                      handleInputChange("category", value)
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -141,7 +192,9 @@ export const CreatePost = () => {
                     id="deadline"
                     type="date"
                     value={formData.deadline}
-                    onChange={(e) => handleInputChange('deadline', e.target.value)}
+                    onChange={e =>
+                      handleInputChange("deadline", e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -153,7 +206,7 @@ export const CreatePost = () => {
                   id="tags"
                   placeholder="React, Node.js, PostgreSQL (separated by commas)"
                   value={formData.tags}
-                  onChange={(e) => handleInputChange('tags', e.target.value)}
+                  onChange={e => handleInputChange("tags", e.target.value)}
                 />
               </div>
 
@@ -168,7 +221,7 @@ export const CreatePost = () => {
                     min="0.1"
                     placeholder="1.5"
                     value={formData.value}
-                    onChange={(e) => handleInputChange('value', e.target.value)}
+                    onChange={e => handleInputChange("value", e.target.value)}
                     className="pl-10"
                     required
                   />
@@ -206,12 +259,19 @@ export const CreatePost = () => {
                 </Card>
               )}
 
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={createPostMutation.isPending || !formData.title || !formData.description || !formData.value}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={
+                  createPostMutation.isPending ||
+                  !formData.title ||
+                  !formData.description ||
+                  !formData.value
+                }
               >
-                {createPostMutation.isPending ? 'Creating Post...' : 'Create Post & Deposit Funds'}
+                {createPostMutation.isPending
+                  ? "Creating Post..."
+                  : "Create Post & Deposit Funds"}
               </Button>
             </form>
           </CardContent>
