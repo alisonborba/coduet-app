@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -10,11 +11,15 @@ export interface Post {
   value: number;
   category: string;
   tags: string[];
-  deadline: string;
   status: "open" | "in_progress" | "completed" | "cancelled";
   publisher_id: string;
   created_at: string;
   updated_at: string;
+  // Blockchain related fields
+  post_id?: number;
+  publisher_pubkey?: string;
+  total_value?: number;
+  transaction_signature?: string;
   profiles?: {
     name: string;
     wallet_address: string;
@@ -26,7 +31,6 @@ export interface Application {
   id: string;
   post_id: string;
   helper_id: string;
-  bid_amount: number;
   message: string;
   status: "pending" | "accepted" | "rejected";
   applied_at: string;
@@ -201,7 +205,11 @@ export const useCreatePost = () => {
       value: number;
       category: string;
       tags: string[];
-      deadline: string;
+      // Blockchain related fields
+      post_id?: number;
+      publisher_pubkey?: string;
+      total_value?: number;
+      transaction_signature?: string;
     }) => {
       if (!user) throw new Error("User not authenticated");
 
@@ -226,9 +234,10 @@ export const useCreatePost = () => {
       });
     },
     onError: (error: any) => {
+      console.error("Database error creating post:", error);
       toast({
-        title: "Error creating post",
-        description: error.message,
+        title: "Database Error",
+        description: "Failed to save post to database. Please try again.",
         variant: "destructive",
       });
     },
@@ -243,7 +252,6 @@ export const useCreateApplication = () => {
   return useMutation({
     mutationFn: async (applicationData: {
       post_id: string;
-      bid_amount: number;
       message: string;
     }) => {
       if (!user) throw new Error("User not authenticated");
@@ -265,13 +273,14 @@ export const useCreateApplication = () => {
       queryClient.invalidateQueries({ queryKey: ["post"] });
       toast({
         title: "Application submitted",
-        description: "Your bid has been submitted successfully.",
+        description: "Your application has been submitted successfully.",
       });
     },
     onError: (error: any) => {
+      console.error("Database error submitting application:", error);
       toast({
-        title: "Error submitting application",
-        description: error.message,
+        title: "Application Error",
+        description: "Failed to submit application. Please try again.",
         variant: "destructive",
       });
     },
@@ -331,9 +340,10 @@ export const useUpdateApplicationStatus = () => {
       });
     },
     onError: (error: any) => {
+      console.error("Database error updating application:", error);
       toast({
-        title: "Error updating application",
-        description: error.message,
+        title: "Update Error",
+        description: "Failed to update application status. Please try again.",
         variant: "destructive",
       });
     },
@@ -367,9 +377,10 @@ export const useCompletePost = () => {
       });
     },
     onError: (error: any) => {
+      console.error("Database error completing post:", error);
       toast({
-        title: "Error completing post",
-        description: error.message,
+        title: "Completion Error",
+        description: "Failed to complete post. Please try again.",
         variant: "destructive",
       });
     },
@@ -402,9 +413,10 @@ export const useCancelPost = () => {
       });
     },
     onError: (error: any) => {
+      console.error("Database error cancelling post:", error);
       toast({
-        title: "Error cancelling post",
-        description: error.message,
+        title: "Cancellation Error",
+        description: "Failed to cancel post. Please try again.",
         variant: "destructive",
       });
     },
@@ -448,9 +460,10 @@ export const useCancelAcceptedBid = () => {
       });
     },
     onError: (error: any) => {
+      console.error("Database error cancelling bid:", error);
       toast({
-        title: "Error cancelling bid",
-        description: error.message,
+        title: "Cancellation Error",
+        description: "Failed to cancel accepted bid. Please try again.",
         variant: "destructive",
       });
     },
