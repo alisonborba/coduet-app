@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -243,9 +244,6 @@ export const Dashboard = () => {
                                         </p>
                                       </div>
                                       <div className="text-right">
-                                        <div className="text-lg font-bold">
-                                          {app.bid_amount} SOL
-                                        </div>
                                         <Badge
                                           className={getApplicationStatusColor(
                                             app.status
