@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import * as anchor from "@coral-xyz/anchor";
+import bs58 from "bs58";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,11 +40,17 @@ import {
   useCancelPost,
   useCancelAcceptedBid,
 } from "@/hooks/usePosts";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
 import { useAuth } from "@/hooks/useAuth";
+import { getProgram } from "@/lib/getProgram";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { getPostPda, helpRequestPda, mainWalletPublicKey } from "@/hooks/useProgram";
+import MAIN_VAULT_KEYPAIR from "@/lib/main_vault-keypair.json";
 
 export const PostDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
+  const wallet = useWallet();
   const [bidAmount, setBidAmount] = useState("");
   const [bidMessage, setBidMessage] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -54,7 +62,31 @@ export const PostDetail = () => {
   const cancelAcceptedBid = useCancelAcceptedBid();
 
   const handleSubmitBid = async () => {
-    if (!post || !bidAmount || !bidMessage) return;
+    if (!post || !bidAmount || !bidMessage || !wallet.publicKey) return;
+
+        // Program data
+        // const postId = new anchor.BN(Date.now());
+        const program = getProgram(wallet);
+
+        try {
+          // Run anchor transaction to create post
+          const tx = await program.methods
+          .applyHelp(post.id)
+          .accounts({
+            applicant: wallet.publicKey,
+            mainVault: mainWalletPublicKey,
+            helpRequest: helpRequestPda(post.id, wallet),
+            systemProgram: SystemProgram.programId,
+            rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          })
+          .rpc();
+    
+          console.log('applyHelp tx', tx);
+        } catch (error) {
+          // @todo - show error message to user
+          console.error("Error apply post:", error);
+          return;
+        }
 
     try {
       await createApplication.mutateAsync({
@@ -77,7 +109,38 @@ export const PostDetail = () => {
 
   const handleCancelPost = async () => {
     if (!post) return;
-    await cancelPost.mutateAsync(post.id);
+
+    const program = getProgram(wallet);
+    const postId = new anchor.BN(1751043981450);
+    const MAIN_VAULT = Keypair.fromSecretKey(new Uint8Array(MAIN_VAULT_KEYPAIR));
+    // const PUBLISHER_WALLET = Keypair.fromSecretKey(new Uint8Array(MAIN_VAULT_KEYPAIR));
+
+    const base58Key = '3cXgUjNxSrZCs7GXqy6afDUdTPcuERdUZxGX9Y3SHCuzKsuqKfWBd8kvKEguJQBAzfdq4JsJ9rqNH8SAmEU6YmcP';
+    const secretKey = bs58.decode(base58Key);
+    const publisherWallet = Keypair.fromSecretKey(secretKey);
+
+    try {
+      const tx = await program.methods
+      .cancelPost(postId)
+      .accounts({
+        post: getPostPda(postId, wallet),
+        publisher: wallet.publicKey,
+        mainVault: mainWalletPublicKey,
+        platformFeeRecipient: mainWalletPublicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([MAIN_VAULT])
+      .rpc();
+
+      console.log('cancelPost tx', tx);
+
+      await cancelPost.mutateAsync(post.id);
+
+    } catch (error) {
+      // @todo - show error message to user
+      console.error("Error apply post:", error);
+      return;
+    }
   };
 
   const handleCancelAcceptedBid = async () => {

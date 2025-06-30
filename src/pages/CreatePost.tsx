@@ -12,16 +12,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 import * as anchor from "@coral-xyz/anchor";
-import { AlertCircle, DollarSign, Clock } from "lucide-react";
+import { AlertCircle, DollarSign } from "lucide-react";
 import { useCreatePost } from "@/hooks/usePosts";
 import { useAuth } from "@/hooks/useAuth";
+import { getPostPda, mainWalletPublicKey } from "@/hooks/useProgram";
 import { getProgram } from "@/lib/getProgram";
-import { Buffer } from "buffer";
-import { mainWalletPublicKey } from "@/hooks/walletProvider";
 
 export const CreatePost = () => {
   const navigate = useNavigate();
@@ -78,18 +76,13 @@ export const CreatePost = () => {
     const postId = new anchor.BN(Date.now());
     const value = new anchor.BN(postData.value * LAMPORTS_PER_SOL);
     const program = getProgram(wallet);
-    window.Buffer = Buffer;
-    const [postPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("post"), postId.toArrayLike(Buffer, "le", 8)],
-      program.programId
-    );
 
     try {
       // Run anchor transaction to create post
       const tx = await program.methods
       .createPost(postId, postData.title, postData.description, value)
       .accounts({
-        post: postPda,
+        post: getPostPda(postId, wallet),
         publisher: wallet.publicKey,
         mainVault: mainWalletPublicKey,
         systemProgram: SystemProgram.programId,
@@ -97,7 +90,7 @@ export const CreatePost = () => {
       })
       .rpc();
 
-      console.log('tx', tx);
+      console.log('createPost tx', tx);
     } catch (error) {
       // @todo - show error message to user
       console.error("Error creating post:", error);
