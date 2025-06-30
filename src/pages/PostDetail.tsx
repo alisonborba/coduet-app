@@ -20,8 +20,6 @@ import {
 import {
   ArrowLeft,
   Clock,
-  Star,
-  DollarSign,
   User,
   Calendar,
   Tag,
@@ -31,7 +29,6 @@ import {
   Phone,
   Check,
   X,
-  AlertTriangle,
 } from "lucide-react";
 import {
   usePost,
@@ -44,10 +41,10 @@ import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web
 import { useAuth } from "@/hooks/useAuth";
 import { getProgram } from "@/lib/getProgram";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { getPostPda, helpRequestPda, mainWalletPublicKey } from "@/hooks/useProgram";
-import MAIN_VAULT_KEYPAIR from "@/lib/main_vault-keypair.json";
+import { getPostPda, helpRequestPda, mainVault, mainWalletPublicKey } from "@/hooks/useProgram";
 
 export const PostDetail = () => {
+  console.log('PostDetail mainVault', mainVault);
   const { id } = useParams();
   const { user } = useAuth();
   const wallet = useWallet();
@@ -112,8 +109,6 @@ export const PostDetail = () => {
 
     const program = getProgram(wallet);
     const postId = new anchor.BN(1751043981450);
-    const MAIN_VAULT = Keypair.fromSecretKey(new Uint8Array(MAIN_VAULT_KEYPAIR));
-    // const PUBLISHER_WALLET = Keypair.fromSecretKey(new Uint8Array(MAIN_VAULT_KEYPAIR));
 
     const base58Key = '3cXgUjNxSrZCs7GXqy6afDUdTPcuERdUZxGX9Y3SHCuzKsuqKfWBd8kvKEguJQBAzfdq4JsJ9rqNH8SAmEU6YmcP';
     const secretKey = bs58.decode(base58Key);
@@ -129,7 +124,7 @@ export const PostDetail = () => {
         platformFeeRecipient: mainWalletPublicKey,
         systemProgram: SystemProgram.programId,
       })
-      .signers([MAIN_VAULT])
+      .signers([mainVault])
       .rpc();
 
       console.log('cancelPost tx', tx);
