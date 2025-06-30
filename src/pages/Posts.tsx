@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, Clock, Star, ArrowRight } from "lucide-react";
+import { Search, Filter, Star, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePosts } from "@/hooks/usePosts";
 
@@ -71,8 +72,6 @@ export const Posts = () => {
         return b.value - a.value;
       case "value_low":
         return a.value - b.value;
-      case "deadline":
-        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
       default:
         return 0;
     }
@@ -140,7 +139,6 @@ export const Posts = () => {
             <SelectItem value="newest">Newest First</SelectItem>
             <SelectItem value="value_high">Highest Value</SelectItem>
             <SelectItem value="value_low">Lowest Value</SelectItem>
-            <SelectItem value="deadline">Deadline Soon</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -198,17 +196,14 @@ export const Posts = () => {
 
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {Math.ceil(
-                    (new Date(post.deadline).getTime() - Date.now()) /
-                      (1000 * 60 * 60 * 24)
-                  )}{" "}
-                  days left
-                </div>
-                <div className="flex items-center gap-1">
                   <Star className="h-3 w-3" />
                   {post.profiles?.name || "Unknown"}
                 </div>
+                {post.transaction_signature && (
+                  <div className="text-green-600 font-medium">
+                    On-chain ✓
+                  </div>
+                )}
               </div>
 
               <Link to={`/posts/${post.id}`}>

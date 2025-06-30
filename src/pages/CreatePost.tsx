@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,11 +21,13 @@ import { useCreatePost } from "@/hooks/usePosts";
 import { useAuth } from "@/hooks/useAuth";
 import { getPostPda, mainWalletPublicKey } from "@/hooks/useProgram";
 import { getProgram } from "@/lib/getProgram";
+import { useToast } from "@/hooks/use-toast";
 
 export const CreatePost = () => {
   const navigate = useNavigate();
   const wallet = useWallet();
   const { user } = useAuth();
+  const { toast } = useToast();
   const createPostMutation = useCreatePost();
 
   const [formData, setFormData] = useState({
@@ -33,8 +36,9 @@ export const CreatePost = () => {
     value: "",
     category: "",
     tags: "",
-    deadline: "",
   });
+
+  const [isCreating, setIsCreating] = useState(false);
 
   // Redirect if not authenticated
   React.useEffect(() => {
@@ -56,54 +60,103 @@ export const CreatePost = () => {
   const { platformFee, totalDeposit } = calculateFees();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    if (!user || !wallet?.publicKey) return;
-
-    e.preventDefault();
-
-    const postData = {
-      title: formData.title,
-      description: formData.description,
-      value: parseFloat(formData.value),
-      category: formData.category,
-      tags: formData.tags
-        .split(",")
-        .map(tag => tag.trim())
-        .filter(Boolean),
-      deadline: formData.deadline,
-    };
-
-    // Program data
-    const postId = new anchor.BN(Date.now());
-    const value = new anchor.BN(postData.value * LAMPORTS_PER_SOL);
-    const program = getProgram(wallet);
-
-    try {
-      // Run anchor transaction to create post
-      const tx = await program.methods
-      .createPost(postId, postData.title, postData.description, value)
-      .accounts({
-        post: getPostPda(postId, wallet),
-        publisher: wallet.publicKey,
-        mainVault: mainWalletPublicKey,
-        systemProgram: SystemProgram.programId,
-        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-      })
-      .rpc();
-
-      console.log('createPost tx', tx);
-    } catch (error) {
-      // @todo - show error message to user
-      console.error("Error creating post:", error);
+    if (!user || !wallet?.publicKey) {
+      toast({
+        title: "Wallet Error",
+        description: "Please connect your wallet to create a post.",
+        variant: "destructive",
+      });
       return;
     }
 
+    e.preventDefault();
+    setIsCreating(true);
+
+    const postId = new anchor.BN(Date.now());
+    const value = new anchor.BN(parseFloat(formData.value) * LAMPORTS_PER_SOL);
+    let transactionSignature = "";
+
     try {
+      // First, try to create the blockchain transaction
+      const program = getProgram(wallet);
+      
+      const tx = await program.methods
+        .createPost(postId, formData.title, formData.description, value)
+        .accounts({
+          post: getPostPda(postId, wallet),
+          publisher: wallet.publicKey,
+          mainVault: mainWalletPublicKey,
+          systemProgram: SystemProgram.programId,
+          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        })
+        .rpc();
+
+      transactionSignature = tx;
+      console.log('Blockchain transaction successful:', tx);
+
+      toast({
+        title: "Blockchain Transaction Successful",
+        description: "Your post has been created on the blockchain.",
+      });
+
+    } catch (blockchainError: any) {
+      console.error("Blockchain error creating post:", blockchainError);
+      
+      let errorMessage = "Failed to create post on blockchain. Please try again.";
+      
+      // Try to extract meaningful error message from blockchain error
+      if (blockchainError?.message) {
+        if (blockchainError.message.includes("insufficient funds")) {
+          errorMessage = "Insufficient funds to create post. Please add more SOL to your wallet.";
+        } else if (blockchainError.message.includes("User rejected")) {
+          errorMessage = "Transaction was rejected. Please try again.";
+        } else {
+          errorMessage = `Blockchain Error: ${blockchainError.message}`;
+        }
+      }
+
+      toast({
+        title: "Blockchain Transaction Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
+      setIsCreating(false);
+      return;
+    }
+
+    // If blockchain transaction succeeds, save to database
+    try {
+      const postData = {
+        title: formData.title,
+        description: formData.description,
+        value: parseFloat(formData.value),
+        category: formData.category,
+        tags: formData.tags
+          .split(",")
+          .map(tag => tag.trim())
+          .filter(Boolean),
+        // Blockchain related fields
+        post_id: postId.toNumber(),
+        publisher_pubkey: wallet.publicKey.toString(),
+        total_value: totalDeposit,
+        transaction_signature: transactionSignature,
+      };
+
       await createPostMutation.mutateAsync(postData);
       navigate("/posts");
-    } catch (error) {
-      // @todo - show error message to user
-      console.error("Error creating post:", error);
+      
+    } catch (dbError: any) {
+      console.error("Database error creating post:", dbError);
+      
+      toast({
+        title: "Database Error",
+        description: "Post was created on blockchain but failed to save to database. Please contact support.",
+        variant: "destructive",
+      });
     }
+
+    setIsCreating(false);
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -178,19 +231,6 @@ export const CreatePost = () => {
                     </SelectContent>
                   </Select>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="deadline">Deadline</Label>
-                  <Input
-                    id="deadline"
-                    type="date"
-                    value={formData.deadline}
-                    onChange={e =>
-                      handleInputChange("deadline", e.target.value)
-                    }
-                    required
-                  />
-                </div>
               </div>
 
               <div className="space-y-2">
@@ -256,13 +296,14 @@ export const CreatePost = () => {
                 type="submit"
                 className="w-full"
                 disabled={
-                  createPostMutation.isPending ||
+                  isCreating ||
                   !formData.title ||
                   !formData.description ||
-                  !formData.value
+                  !formData.value ||
+                  !formData.category
                 }
               >
-                {createPostMutation.isPending
+                {isCreating
                   ? "Creating Post..."
                   : "Create Post & Deposit Funds"}
               </Button>
