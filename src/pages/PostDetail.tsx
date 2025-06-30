@@ -36,7 +36,12 @@ import {
   useCancelPost,
   useCancelAcceptedBid,
 } from "@/hooks/usePosts";
-import { useToast } from "@/hooks/use-toast";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
+import { useAuth } from "@/hooks/useAuth";
+import { getProgram } from "@/lib/getProgram";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { getPostPda, helpRequestPda, mainVault, mainWalletPublicKey } from "@/hooks/useProgram";
+
 
 export const PostDetail = () => {
   const { id } = useParams<{ id: string }>();
