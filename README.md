@@ -87,11 +87,12 @@ This project is built during spare time and is a **work in progress**. Contribut
 - Fix a bug with edit profile.
 - Make sure the helpers filled the wallet field before send bids.
 - Add the completeContract transaction solana explorer link.
-- Form validations and toast notifications enhancements  
-- Contract status indicators and better error handling  
-- Unit tests and visual feedback  
-- Wallet disconnection logic  
-- Reusable hooks for Solana interactions  
+- Form validations and toast notifications enhancements.
+- Contract status indicators and better error handling.
+- Unit tests and visual feedback.
+- Wallet disconnection logic.
+- Reusable hooks for Solana interactions.
+- Fix others (many 😅) bugs.
 
 ---
 
