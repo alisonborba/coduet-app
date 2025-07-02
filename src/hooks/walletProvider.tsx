@@ -14,9 +14,9 @@ interface SolanaProviderProps {
   children: ReactNode;
 }
 
-export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {  
+export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-  
+
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={[]} autoConnect>
@@ -25,4 +25,3 @@ export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
     </ConnectionProvider>
   );
 };
-

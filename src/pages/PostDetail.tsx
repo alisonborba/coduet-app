@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import * as anchor from "@coral-xyz/anchor";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,9 +16,6 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Calendar,
-  Clock,
-  MapPin,
-  Star,
   User,
   Mail,
   Phone,
@@ -27,7 +25,6 @@ import {
   AlertTriangle,
   ExternalLink,
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
 import {
   usePost,
   useCreateApplication,
@@ -36,18 +33,19 @@ import {
   useCancelPost,
   useCancelAcceptedBid,
 } from "@/hooks/usePosts";
-import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { getProgram } from "@/lib/getProgram";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { getPostPda, helpRequestPda, mainVault, mainWalletPublicKey } from "@/hooks/useProgram";
-
+import { getPostPda, mainVault, mainWalletPublicKey, plataformFeeVault } from "@/hooks/useProgram";
+import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
+import bs58 from 'bs58';
 
 export const PostDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const [applicationMessage, setApplicationMessage] = useState("");
   const [isApplicationDialogOpen, setIsApplicationDialogOpen] = useState(false);
@@ -58,6 +56,12 @@ export const PostDetail = () => {
   const completePostMutation = useCompletePost();
   const cancelPostMutation = useCancelPost();
   const cancelAcceptedBidMutation = useCancelAcceptedBid();
+
+  const wallet = useWallet();
+  const program = getProgram(wallet);
+  const postId = new anchor.BN(post?.post_id);
+  const postPDA = getPostPda(postId, wallet);
+
 
   if (isLoading) {
     return (
@@ -120,18 +124,83 @@ export const PostDetail = () => {
 
   const handleCompletePost = async () => {
     try {
+      if (!wallet || !wallet.publicKey || wallet.publicKey === null) {
+        toast({
+          title: "Wallet Error",
+          description: "Please connect your wallet to cancel the post.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const helperWalletAddress = post.applications?.find(app => app.status === 'accepted')?.profiles.wallet_address;
+      const helperWalletPublicKey = new PublicKey(helperWalletAddress);
+      
+      // Complete Contract and pay helper
+      const tx = await program.methods
+      .completeContract(postId)
+      .accounts({
+        publisher: wallet.publicKey,
+        mainVault: mainVault.publicKey,
+        post: postPDA,
+        helper: helperWalletPublicKey,
+        platformFeeRecipient: plataformFeeVault,
+      })
+      .signers([mainVault])
+      .rpc();
+
+      console.log('handleCompletePost tx', tx);
+            
       await completePostMutation.mutateAsync(post.id);
     } catch (error) {
       console.error("Error completing post:", error);
+      toast({
+        title: "Wallet Error",
+        description: error.toString(),
+        variant: "destructive",
+      });
     }
   };
 
   const handleCancelPost = async () => {
     try {
+      // First, try to cancel the blockchain transaction
+      if (!wallet || !wallet.publicKey || wallet.publicKey === null) {
+        toast({
+          title: "Wallet Error",
+          description: "Please connect your wallet to cancel the post.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const tx = await program.methods
+        .cancelPost(postId)
+        .accounts({
+          publisher: wallet.publicKey.toString(),
+          mainVault: mainVault,
+          post: postPDA,
+          platformFeeRecipient: plataformFeeVault,
+        })
+        .rpc();
+
+      console.log("handleCancelPost tx", tx);
+
+      toast({
+        title: "Blockchain Transaction Successful",
+        description: "Your post has been cancelled on the blockchain.",
+      });
+
       await cancelPostMutation.mutateAsync(post.id);
-      navigate("/posts");
+      
+      setTimeout(() => navigate("/posts"), 5000);
     } catch (error) {
-      console.error("Error cancelling post:", error);
+      console.log('error', error);
+      toast({
+        title: "Transaction Failed",
+        description: error.toString(),
+        variant: "destructive",
+      });
     }
   };
 
@@ -194,14 +263,23 @@ export const PostDetail = () => {
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Badge className={getStatusColor(post.status)} variant="secondary">
+                  <Badge
+                    className={getStatusColor(post.status)}
+                    variant="secondary"
+                  >
                     {post.status.replace("_", " ")}
                   </Badge>
-                  <Badge className={getCategoryColor(post.category)} variant="outline">
+                  <Badge
+                    className={getCategoryColor(post.category)}
+                    variant="outline"
+                  >
                     {post.category}
                   </Badge>
                   {post.transaction_signature && (
-                    <Badge variant="outline" className="text-green-600 border-green-600">
+                    <Badge
+                      variant="outline"
+                      className="text-green-600 border-green-600"
+                    >
                       On-chain ✓
                     </Badge>
                   )}
@@ -210,7 +288,9 @@ export const PostDetail = () => {
               </div>
 
               <div className="text-right">
-                <div className="text-3xl font-bold text-primary">{post.value} SOL</div>
+                <div className="text-3xl font-bold text-primary">
+                  {post.value} SOL
+                </div>
                 <div className="text-sm text-muted-foreground">
                   ~${(post.value * 100).toFixed(0)}
                 </div>
@@ -252,12 +332,19 @@ export const PostDetail = () => {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span>Posted: {new Date(post.created_at).toLocaleDateString()}</span>
+                  <span>
+                    Posted: {new Date(post.created_at).toLocaleDateString()}
+                  </span>
                 </div>
                 {post.post_id && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>Post ID: {post.post_id}</span>
-                  </div>
+                  <>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>Post ID: {post.post_id}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="text-xs">Wallet: {post.publisher_pubkey || "Unknown"}</span>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -266,7 +353,7 @@ export const PostDetail = () => {
               <div className="pt-4 border-t">
                 <div className="flex items-center gap-2 text-sm">
                   <ExternalLink className="h-4 w-4 text-green-600" />
-                  <a 
+                  <a
                     href={`https://explorer.solana.com/tx/${post.transaction_signature}?cluster=devnet`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -330,7 +417,9 @@ export const PostDetail = () => {
                   onClick={handleCancelPost}
                   disabled={cancelPostMutation.isPending}
                 >
-                  {cancelPostMutation.isPending ? "Cancelling..." : "Cancel Post"}
+                  {cancelPostMutation.isPending
+                    ? "Cancelling..."
+                    : "Cancel Post"}
                 </Button>
               )}
 
@@ -371,11 +460,13 @@ export const PostDetail = () => {
             </CardHeader>
             <CardContent>
               <p className="text-green-700 mb-4">
-                Congratulations! Your application has been accepted. Please contact
-                the publisher to discuss the project details.
+                Congratulations! Your application has been accepted. Please
+                contact the publisher to discuss the project details.
               </p>
               <div className="space-y-2">
-                <h4 className="font-semibold text-green-800">Publisher Contact:</h4>
+                <h4 className="font-semibold text-green-800">
+                  Publisher Contact:
+                </h4>
                 <div className="text-sm text-green-700">
                   <div>Name: {post.profiles?.name}</div>
                   {post.profiles?.wallet_address && (
@@ -397,9 +488,9 @@ export const PostDetail = () => {
             </CardHeader>
             <CardContent>
               <p className="text-blue-700 mb-4">
-                You have accepted a bid for this project. Please contact the helper
-                to discuss project details. Once the work is completed, use the
-                "Complete & Pay Helper" button above.
+                You have accepted a bid for this project. Please contact the
+                helper to discuss project details. Once the work is completed,
+                use the "Complete & Pay Helper" button above.
               </p>
               <div className="space-y-2">
                 <h4 className="font-semibold text-blue-800">Helper Contact:</h4>
@@ -415,7 +506,9 @@ export const PostDetail = () => {
                     <div>Skype: {acceptedApplication.profiles.skype}</div>
                   )}
                   {acceptedApplication?.profiles?.wallet_address && (
-                    <div>Wallet: {acceptedApplication.profiles.wallet_address}</div>
+                    <div>
+                      Wallet: {acceptedApplication.profiles.wallet_address}
+                    </div>
                   )}
                 </div>
               </div>
@@ -438,8 +531,8 @@ export const PostDetail = () => {
                       application.status === "accepted"
                         ? "border-green-200 bg-green-50"
                         : application.status === "rejected"
-                        ? "border-red-200 bg-red-50"
-                        : "border-gray-200"
+                          ? "border-red-200 bg-red-50"
+                          : "border-gray-200"
                     }`}
                   >
                     <div className="flex items-start justify-between mb-3">
@@ -454,7 +547,10 @@ export const PostDetail = () => {
                             {application.profiles?.name || "Unknown"}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            Applied {new Date(application.applied_at).toLocaleDateString()}
+                            Applied{" "}
+                            {new Date(
+                              application.applied_at
+                            ).toLocaleDateString()}
                           </div>
                         </div>
                       </div>
@@ -465,8 +561,8 @@ export const PostDetail = () => {
                             application.status === "accepted"
                               ? "bg-green-100 text-green-800"
                               : application.status === "rejected"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-yellow-100 text-yellow-800"
                           }
                           variant="secondary"
                         >
@@ -485,7 +581,9 @@ export const PostDetail = () => {
                                     "accepted"
                                   )
                                 }
-                                disabled={updateApplicationStatusMutation.isPending}
+                                disabled={
+                                  updateApplicationStatusMutation.isPending
+                                }
                                 className="bg-green-600 hover:bg-green-700"
                               >
                                 <CheckCircle className="h-3 w-3 mr-1" />
@@ -500,7 +598,9 @@ export const PostDetail = () => {
                                     "rejected"
                                   )
                                 }
-                                disabled={updateApplicationStatusMutation.isPending}
+                                disabled={
+                                  updateApplicationStatusMutation.isPending
+                                }
                               >
                                 <XCircle className="h-3 w-3 mr-1" />
                                 Reject
@@ -537,15 +637,15 @@ export const PostDetail = () => {
                       </div>
                     )}
 
-                    {application.status === "rejected" && 
-                     application.helper_id === user?.id && (
-                      <div className="mt-3 p-3 bg-red-100 border border-red-200 rounded text-sm text-red-700">
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="h-4 w-4" />
-                          Your application was not accepted for this project.
+                    {application.status === "rejected" &&
+                      application.helper_id === user?.id && (
+                        <div className="mt-3 p-3 bg-red-100 border border-red-200 rounded text-sm text-red-700">
+                          <div className="flex items-center gap-2">
+                            <AlertTriangle className="h-4 w-4" />
+                            Your application was not accepted for this project.
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </div>
                 ))}
               </div>

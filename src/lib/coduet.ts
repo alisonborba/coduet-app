@@ -14,189 +14,6 @@ export type Coduet = {
   },
   "instructions": [
     {
-      "name": "acceptHelper",
-      "discriminator": [
-        185,
-        215,
-        221,
-        137,
-        109,
-        218,
-        17,
-        143
-      ],
-      "accounts": [
-        {
-          "name": "publisher",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "post",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  111,
-                  115,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "postId"
-              }
-            ]
-          }
-        },
-        {
-          "name": "helpRequest",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  104,
-                  101,
-                  108,
-                  112,
-                  95,
-                  114,
-                  101,
-                  113,
-                  117,
-                  101,
-                  115,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "post"
-              },
-              {
-                "kind": "account",
-                "path": "applicant"
-              }
-            ]
-          }
-        },
-        {
-          "name": "applicant"
-        },
-        {
-          "name": "mainVault",
-          "writable": true
-        }
-      ],
-      "args": [
-        {
-          "name": "postId",
-          "type": "u64"
-        },
-        {
-          "name": "applicant",
-          "type": "pubkey"
-        }
-      ]
-    },
-    {
-      "name": "applyHelp",
-      "discriminator": [
-        226,
-        57,
-        113,
-        97,
-        57,
-        59,
-        193,
-        11
-      ],
-      "accounts": [
-        {
-          "name": "applicant",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "post",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  111,
-                  115,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "postId"
-              }
-            ]
-          }
-        },
-        {
-          "name": "mainVault",
-          "writable": true
-        },
-        {
-          "name": "helpRequest",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  104,
-                  101,
-                  108,
-                  112,
-                  95,
-                  114,
-                  101,
-                  113,
-                  117,
-                  101,
-                  115,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "post"
-              },
-              {
-                "kind": "account",
-                "path": "applicant"
-              }
-            ]
-          }
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "postId",
-          "type": "u64"
-        }
-      ]
-    },
-    {
       "name": "cancelPost",
       "discriminator": [
         118,
@@ -382,10 +199,6 @@ export type Coduet = {
           "type": "string"
         },
         {
-          "name": "description",
-          "type": "string"
-        },
-        {
           "name": "value",
           "type": "u64"
         }
@@ -393,19 +206,6 @@ export type Coduet = {
     }
   ],
   "accounts": [
-    {
-      "name": "helpRequest",
-      "discriminator": [
-        125,
-        85,
-        192,
-        87,
-        157,
-        53,
-        23,
-        169
-      ]
-    },
     {
       "name": "post",
       "discriminator": [
@@ -519,51 +319,6 @@ export type Coduet = {
   ],
   "types": [
     {
-      "name": "helpRequest",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "postId",
-            "type": "u64"
-          },
-          {
-            "name": "applicant",
-            "type": "pubkey"
-          },
-          {
-            "name": "status",
-            "type": {
-              "defined": {
-                "name": "helpRequestStatus"
-              }
-            }
-          },
-          {
-            "name": "appliedAt",
-            "type": "i64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "helpRequestStatus",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "pending"
-          },
-          {
-            "name": "accepted"
-          },
-          {
-            "name": "rejected"
-          }
-        ]
-      }
-    },
-    {
       "name": "post",
       "type": {
         "kind": "struct",
@@ -578,10 +333,6 @@ export type Coduet = {
           },
           {
             "name": "title",
-            "type": "string"
-          },
-          {
-            "name": "description",
             "type": "string"
           },
           {

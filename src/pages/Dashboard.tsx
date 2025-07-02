@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useUserPosts } from "@/hooks/usePosts";
 import { useAuth } from "@/hooks/useAuth";

@@ -6,15 +6,18 @@ import idl from "./coduet.json";
 // const PROGRAM_ID = new PublicKey("G5gcEvNxXPxsUwKmGNxNheKq2j5nBghciJpCyooPCKdd");
 
 export function getProgram(wallet: any) {
-    const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+  const connection = new Connection(
+    "https://api.devnet.solana.com",
+    "confirmed"
+  );
 
-    const provider = new AnchorProvider(connection, wallet, {
-        preflightCommitment: "confirmed",
-    });
+  const provider = new AnchorProvider(connection, wallet, {
+    preflightCommitment: "confirmed",
+  });
 
-    setProvider(provider);
+  setProvider(provider);
 
-    // const program = new Program(idl, provider);
+  // const program = new Program(idl, provider);
 
-    return new Program(idl, provider);
+  return new Program(idl, provider);
 }

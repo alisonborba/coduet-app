@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -79,35 +78,36 @@ export const CreatePost = () => {
     try {
       // First, try to create the blockchain transaction
       const program = getProgram(wallet);
-      
+
       const tx = await program.methods
-        .createPost(postId, formData.title, formData.description, value)
+        .createPost(postId, formData.title, value)
         .accounts({
-          post: getPostPda(postId, wallet),
-          publisher: wallet.publicKey,
+          publisher: wallet.publicKey.toString(),
           mainVault: mainWalletPublicKey,
-          systemProgram: SystemProgram.programId,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          post: getPostPda(postId, wallet),
         })
         .rpc();
 
+      console.log("tx", tx);
+
       transactionSignature = tx;
-      console.log('Blockchain transaction successful:', tx);
+      console.log("Blockchain transaction successful:", tx);
 
       toast({
         title: "Blockchain Transaction Successful",
         description: "Your post has been created on the blockchain.",
       });
-
     } catch (blockchainError: any) {
       console.error("Blockchain error creating post:", blockchainError);
-      
-      let errorMessage = "Failed to create post on blockchain. Please try again.";
-      
+
+      let errorMessage =
+        "Failed to create post on blockchain. Please try again.";
+
       // Try to extract meaningful error message from blockchain error
       if (blockchainError?.message) {
         if (blockchainError.message.includes("insufficient funds")) {
-          errorMessage = "Insufficient funds to create post. Please add more SOL to your wallet.";
+          errorMessage =
+            "Insufficient funds to create post. Please add more SOL to your wallet.";
         } else if (blockchainError.message.includes("User rejected")) {
           errorMessage = "Transaction was rejected. Please try again.";
         } else {
@@ -120,7 +120,7 @@ export const CreatePost = () => {
         description: errorMessage,
         variant: "destructive",
       });
-      
+
       setIsCreating(false);
       return;
     }
@@ -145,13 +145,13 @@ export const CreatePost = () => {
 
       await createPostMutation.mutateAsync(postData);
       navigate("/posts");
-      
     } catch (dbError: any) {
       console.error("Database error creating post:", dbError);
-      
+
       toast({
         title: "Database Error",
-        description: "Post was created on blockchain but failed to save to database. Please contact support.",
+        description:
+          "Post was created on blockchain but failed to save to database. Please contact support.",
         variant: "destructive",
       });
     }

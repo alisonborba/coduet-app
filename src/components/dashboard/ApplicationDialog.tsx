@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Dialog,
@@ -11,21 +10,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  CheckCircle,
-  XCircle,
-  Users,
-  User,
-  Mail,
-  Phone,
-} from "lucide-react";
+import { CheckCircle, XCircle, Users, User, Mail, Phone } from "lucide-react";
 import { Post, useUpdateApplicationStatus } from "@/hooks/usePosts";
 
 interface ApplicationDialogProps {
   post: Post;
 }
 
-export const ApplicationDialog: React.FC<ApplicationDialogProps> = ({ post }) => {
+export const ApplicationDialog: React.FC<ApplicationDialogProps> = ({
+  post,
+}) => {
   const updateApplicationStatus = useUpdateApplicationStatus();
 
   const handleAcceptApplication = async (applicationId: string) => {

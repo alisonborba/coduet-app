@@ -8,189 +8,6 @@
   },
   "instructions": [
     {
-      "name": "accept_helper",
-      "discriminator": [
-        185,
-        215,
-        221,
-        137,
-        109,
-        218,
-        17,
-        143
-      ],
-      "accounts": [
-        {
-          "name": "publisher",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "post",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  111,
-                  115,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "post_id"
-              }
-            ]
-          }
-        },
-        {
-          "name": "help_request",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  104,
-                  101,
-                  108,
-                  112,
-                  95,
-                  114,
-                  101,
-                  113,
-                  117,
-                  101,
-                  115,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "post"
-              },
-              {
-                "kind": "account",
-                "path": "applicant"
-              }
-            ]
-          }
-        },
-        {
-          "name": "applicant"
-        },
-        {
-          "name": "main_vault",
-          "writable": true
-        }
-      ],
-      "args": [
-        {
-          "name": "post_id",
-          "type": "u64"
-        },
-        {
-          "name": "applicant",
-          "type": "pubkey"
-        }
-      ]
-    },
-    {
-      "name": "apply_help",
-      "discriminator": [
-        226,
-        57,
-        113,
-        97,
-        57,
-        59,
-        193,
-        11
-      ],
-      "accounts": [
-        {
-          "name": "applicant",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "post",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  111,
-                  115,
-                  116
-                ]
-              },
-              {
-                "kind": "arg",
-                "path": "post_id"
-              }
-            ]
-          }
-        },
-        {
-          "name": "main_vault",
-          "writable": true
-        },
-        {
-          "name": "help_request",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  104,
-                  101,
-                  108,
-                  112,
-                  95,
-                  114,
-                  101,
-                  113,
-                  117,
-                  101,
-                  115,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "post"
-              },
-              {
-                "kind": "account",
-                "path": "applicant"
-              }
-            ]
-          }
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "post_id",
-          "type": "u64"
-        }
-      ]
-    },
-    {
       "name": "cancel_post",
       "discriminator": [
         118,
@@ -376,10 +193,6 @@
           "type": "string"
         },
         {
-          "name": "description",
-          "type": "string"
-        },
-        {
           "name": "value",
           "type": "u64"
         }
@@ -387,19 +200,6 @@
     }
   ],
   "accounts": [
-    {
-      "name": "HelpRequest",
-      "discriminator": [
-        125,
-        85,
-        192,
-        87,
-        157,
-        53,
-        23,
-        169
-      ]
-    },
     {
       "name": "Post",
       "discriminator": [
@@ -513,51 +313,6 @@
   ],
   "types": [
     {
-      "name": "HelpRequest",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "post_id",
-            "type": "u64"
-          },
-          {
-            "name": "applicant",
-            "type": "pubkey"
-          },
-          {
-            "name": "status",
-            "type": {
-              "defined": {
-                "name": "HelpRequestStatus"
-              }
-            }
-          },
-          {
-            "name": "applied_at",
-            "type": "i64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "HelpRequestStatus",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Pending"
-          },
-          {
-            "name": "Accepted"
-          },
-          {
-            "name": "Rejected"
-          }
-        ]
-      }
-    },
-    {
       "name": "Post",
       "type": {
         "kind": "struct",
@@ -572,10 +327,6 @@
           },
           {
             "name": "title",
-            "type": "string"
-          },
-          {
-            "name": "description",
             "type": "string"
           },
           {
