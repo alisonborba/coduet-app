@@ -1,12 +1,13 @@
-# 🛠️ CodeDuet Front-End (Developer Helper DApp)
+# 🛠️ CodeDuet React App (DApp)
 
-[Live Vercel Demo](https://coduet.vercel.app/) • [Anchor Program](https://github.com/alisonborba/coduet) • Built on [Solana Devnet](https://solana.com/developers)
+• Vercel Live demo: [coduet.vercel.app](https://coduet.vercel.app/)
+• Anchor Program: [github.com/alisonborba/coduet](https://github.com/alisonborba/coduet)
 
 > A decentralized application (dApp) built on Solana to connect developers seeking help with other developers ready to collaborate and earn.
 
----
+[![Watch the demo](https://cdn.loom.com/sessions/thumbnails/ed79f09fc67648f983b47498ae12c987-45a003ce9fd4c10c-full-play.gif)](https://www.loom.com/share/ed79f09fc67648f983b47498ae12c987?t=116&sid=563115b6-c55f-4466-8e04-69cb992cb07b)
 
-🎥 [![Watch the demo](https://cdn.loom.com/sessions/thumbnails/ed79f09fc67648f983b47498ae12c987-45a003ce9fd4c10c-full-play.gif)](https://www.loom.com/share/ed79f09fc67648f983b47498ae12c987?t=116&sid=563115b6-c55f-4466-8e04-69cb992cb07b)
+---
 
 ## 📌 Overview
 
@@ -26,22 +27,6 @@ This repository contains the **React + Next.js** front-end of the project, which
 - 🔐 Full smart contract validation via [Anchor](https://project-serum.github.io/anchor/) framework.
 - 🎨 Responsive UI powered by Tailwind CSS.
 
----
-
-## 🧰 Tech Stack
-
-| Layer              | Technology                                                                 |
-|-------------------|----------------------------------------------------------------------------|
-| Blockchain         | [Solana](https://solana.com/) (Devnet)                                     |
-| Smart Contract     | [Anchor Framework](https://github.com/coral-xyz/anchor)                    |
-| Frontend           | [React](https://reactjs.org/) + [Next.js](https://nextjs.org/)             |
-| Build Tool         | [Vite](https://vitejs.dev/)                                                 |
-| Web3 Integration   | [@solana/web3.js](https://github.com/solana-labs/solana-web3.js)           |
-| Wallet Support     | Phantom Wallet (via browser extension)                                     |
-| Styling            | [Tailwind CSS](https://tailwindcss.com/)                                   |
-| Anchor JS Client   | [@coral-xyz/anchor](https://github.com/coral-xyz/anchor/tree/master/ts)    |
-
----
 
 ## 🧪 Getting Started
 
@@ -77,6 +62,19 @@ This project is deployed using [**Vercel**](https://vercel.com), providing fast 
 - `/src/lib`: Utilities to interact with the smart contract (get PDA, program instance, etc).
 - `/src/pages`: Next.js page routes.
 - `/tests`: Integration tests (using Mocha + Anchor client).
+
+## 🧰 Tech Stack
+
+| Layer              | Technology                                                                 |
+|-------------------|----------------------------------------------------------------------------|
+| Blockchain         | [Solana](https://solana.com/) (Devnet)                                     |
+| Smart Contract     | [Anchor Framework](https://github.com/coral-xyz/anchor)                    |
+| Frontend           | [React](https://reactjs.org/) + [Next.js](https://nextjs.org/)             |
+| Build Tool         | [Vite](https://vitejs.dev/)                                                 |
+| Web3 Integration   | [@solana/web3.js](https://github.com/solana-labs/solana-web3.js)           |
+| Wallet Support     | Phantom Wallet (via browser extension)                                     |
+| Styling            | [Tailwind CSS](https://tailwindcss.com/)                                   |
+| Anchor JS Client   | [@coral-xyz/anchor](https://github.com/coral-xyz/anchor/tree/master/ts)    |
 
 ---
 
