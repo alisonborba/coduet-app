@@ -205,7 +205,7 @@ export const Profile = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome</Label>
+                  <Label htmlFor="name">Name</Label>
                   {isEditing ? (
                     <Input
                       id="name"
@@ -226,7 +226,7 @@ export const Profile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Telefone</Label>
+                  <Label htmlFor="phone">Phone</Label>
                   {isEditing ? (
                     <Input
                       id="phone"
@@ -247,7 +247,7 @@ export const Profile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="country">País</Label>
+                  <Label htmlFor="country">Country</Label>
                   {isEditing ? (
                     <Select
                       value={profileData.country}
@@ -275,7 +275,7 @@ export const Profile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="birth_date">Data de Nascimento</Label>
+                  <Label htmlFor="birth_date">Date of Birth</Label>
                   {isEditing ? (
                     <Input
                       id="birth_date"
@@ -384,13 +384,13 @@ export const Profile = () => {
           {/* Specialties */}
           <Card>
             <CardHeader>
-              <CardTitle>Especialidades</CardTitle>
+              <CardTitle>Specialities</CardTitle>
             </CardHeader>
             <CardContent>
               {isEditing ? (
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground">
-                    Selecione suas especialidades técnicas:
+                    Select your technical specialities:
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {availableSpecialties.map(specialty => (
@@ -418,7 +418,7 @@ export const Profile = () => {
                       </Badge>
                     ))
                   ) : (
-                    <p className="text-muted-foreground">No specialties set</p>
+                    <p className="text-muted-foreground">No specialities set</p>
                   )}
                 </div>
               )}
