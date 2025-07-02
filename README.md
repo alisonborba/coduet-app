@@ -1,10 +1,12 @@
 # 🛠️ CodeDuet Front-End (Developer Helper DApp)
 
-[Live Demo](https://coduet.vercel.app/) • [Anchor Program](https://github.com/alisonborba/coduet) • Built on [Solana Devnet](https://solana.com/developers)
+[Live Vercel Demo](https://coduet.vercel.app/) • [Anchor Program](https://github.com/alisonborba/coduet) • Built on [Solana Devnet](https://solana.com/developers)
 
 > A decentralized application (dApp) built on Solana to connect developers seeking help with other developers ready to collaborate and earn.
 
 ---
+
+🎥 [![Watch the demo](https://cdn.loom.com/sessions/thumbnails/ed79f09fc67648f983b47498ae12c987-45a003ce9fd4c10c-full-play.gif)](https://www.loom.com/share/ed79f09fc67648f983b47498ae12c987?t=116&sid=563115b6-c55f-4466-8e04-69cb992cb07b)
 
 ## 📌 Overview
 
