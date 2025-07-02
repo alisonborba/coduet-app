@@ -1,74 +1,115 @@
-# Welcome to your Lovable project
+# 🛠️ CodeDuet Front-End (Developer Helper DApp)
 
-## Project info
+[Live Demo](https://coduet.vercel.app/) • [Anchor Program](https://github.com/alisonborba/coduet) • Built on [Solana Devnet](https://solana.com/developers)
 
-**URL**: https://lovable.dev/projects/fdc45110-f767-4094-bbdd-558f567a1f37
+> A decentralized application (dApp) built on Solana to connect developers seeking help with other developers ready to collaborate and earn.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 📌 Overview
 
-**Use Lovable**
+CodeDuet is a Web3-powered platform that allows users to request developer help through paid job posts, match with potential helpers (bidders), and settle jobs via smart contract transactions on the Solana blockchain.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/fdc45110-f767-4094-bbdd-558f567a1f37) and start prompting.
+This repository contains the **React + Next.js** front-end of the project, which interacts with the Anchor smart contract deployed on **Solana Devnet**.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🚀 Features
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- ✍️ **Create Help Post**: Users can publish posts requesting assistance with coding tasks.
+- ❌ **Cancel Posts**: Publishers can cancel open posts; only the platform fee is retained.
+- 💰 **Fee Management (5%)**: Platform fees are automatically deducted upon post creation or cancellation.
+- 📩 **Apply for Jobs**: Helpers can apply to posts as bidders.
+- ✅ **Complete Contract**: Once the helper completes the task, the publisher can release the funds.
+- 🔐 Full smart contract validation via [Anchor](https://project-serum.github.io/anchor/) framework.
+- 🎨 Responsive UI powered by Tailwind CSS.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🧰 Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+| Layer              | Technology                                                                 |
+|-------------------|----------------------------------------------------------------------------|
+| Blockchain         | [Solana](https://solana.com/) (Devnet)                                     |
+| Smart Contract     | [Anchor Framework](https://github.com/coral-xyz/anchor)                    |
+| Frontend           | [React](https://reactjs.org/) + [Next.js](https://nextjs.org/)             |
+| Build Tool         | [Vite](https://vitejs.dev/)                                                 |
+| Web3 Integration   | [@solana/web3.js](https://github.com/solana-labs/solana-web3.js)           |
+| Wallet Support     | Phantom Wallet (via browser extension)                                     |
+| Styling            | [Tailwind CSS](https://tailwindcss.com/)                                   |
+| Anchor JS Client   | [@coral-xyz/anchor](https://github.com/coral-xyz/anchor/tree/master/ts)    |
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🧪 Getting Started
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### 📦 Install dependencies
+```bash
+npm install
 ```
 
-**Edit a file directly in GitHub**
+### ▶️ Run locally
+```bash
+npm run dev
+```
+By default, it runs using Vite for fast hot-reloading.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## ⚙️ Environment
 
-**Use GitHub Codespaces**
+Make sure to set up the following environment variables if needed:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+NEXT_PUBLIC_PROGRAM_ID=G5gcEvNxXPxsUwKmGNxNheKq2j5nBghciJpCyooPCKdd
+NEXT_PUBLIC_NETWORK=https://api.devnet.solana.com
+```
 
-## What technologies are used for this project?
+## 📂 Folder Structure
 
-This project is built with:
+- `/src/components`: Reusable UI components.
+- `/src/lib`: Utilities to interact with the smart contract (get PDA, program instance, etc).
+- `/src/pages`: Next.js page routes.
+- `/tests`: Integration tests (using Mocha + Anchor client).
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+## 📈 Improvements and Contributions
 
-Simply open [Lovable](https://lovable.dev/projects/fdc45110-f767-4094-bbdd-558f567a1f37) and click on Share -> Publish.
+This project is built during spare time and is a **work in progress**. Contributions and suggestions are welcome!
 
-## Can I connect a custom domain to my Lovable project?
+### 🔧 Upcoming Improvements
 
-Yes, you can!
+- Form validations and toast notifications enhancements  
+- Contract status indicators and better error handling  
+- Unit tests and visual feedback  
+- Wallet disconnection logic  
+- Reusable hooks for Solana interactions  
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🤝 Contributing
 
+If you're interested in contributing or have ideas for improvement, feel free to fork the repo, create a issue or submit a pull request.
+
+📧 Contact me: [alisonborbaa@gmail.com](mailto:alisonborbaa@gmail.com)  
+🔗 GitHub: [@alisonborba](https://github.com/alisonborba)
+👨‍💼 Linkedin: [alison-borba](https://www.linkedin.com/in/alison-borba/)
+
+---
+
+## 🌐 Related Repositories
+
+- [Anchor Smart Contract Code](https://github.com/alisonborba/coduet)
+
+---
+
+## 💡 Keywords
+
+**Solana**, **Web3**, **DApp**, **Anchor**, **Next.js**, **React**, **DeFi**, **Smart Contract**,  
+**Tailwind**, **Blockchain**, **Phantom Wallet**, **Decentralized Jobs**, **Open Source**,  
+**Developer DAO**, **Gasless Transactions**
+
+---
+
+## 📜 License
+
+MIT License — free to use, fork, build on.
