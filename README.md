@@ -59,9 +59,15 @@ By default, it runs using Vite for fast hot-reloading.
 Make sure to set up the following environment variables if needed:
 
 ```bash
-NEXT_PUBLIC_PROGRAM_ID=G5gcEvNxXPxsUwKmGNxNheKq2j5nBghciJpCyooPCKdd
-NEXT_PUBLIC_NETWORK=https://api.devnet.solana.com
+VITE_MAIN_VAULT_KEYPAIR=[2, 3, 5, 7, 11, 13, 17, 19, 23, 29...]
 ```
+
+## 🚀 Deployment
+
+This project is deployed using [**Vercel**](https://vercel.com), providing fast and seamless continuous deployment for the front-end application.
+
+---
+
 
 ## 📂 Folder Structure
 
