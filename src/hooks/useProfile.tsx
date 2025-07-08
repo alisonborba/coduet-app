@@ -62,7 +62,7 @@ export const useUpdateProfile = () => {
           specialties: profileData.specialties,
           wallet_address: profileData.wallet_address,
           updated_at: new Date().toISOString(),
-        })
+        }, { onConflict: 'user_id' })
         .select()
         .single();
 
