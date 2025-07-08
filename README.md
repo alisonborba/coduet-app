@@ -27,18 +27,20 @@ This repository contains the **React + Next.js** front-end of the project, which
 - 🔐 Full smart contract validation via [Anchor](https://project-serum.github.io/anchor/) framework.
 - 🎨 Responsive UI powered by Tailwind CSS.
 
-
 ## 🧪 Getting Started
 
 ### 📦 Install dependencies
+
 ```bash
 npm install
 ```
 
 ### ▶️ Run locally
+
 ```bash
 npm run dev
 ```
+
 By default, it runs using Vite for fast hot-reloading.
 
 ## ⚙️ Environment
@@ -55,7 +57,6 @@ This project is deployed using [**Vercel**](https://vercel.com), providing fast 
 
 ---
 
-
 ## 📂 Folder Structure
 
 - `/src/components`: Reusable UI components.
@@ -65,16 +66,16 @@ This project is deployed using [**Vercel**](https://vercel.com), providing fast 
 
 ## 🧰 Tech Stack
 
-| Layer              | Technology                                                                 |
-|-------------------|----------------------------------------------------------------------------|
-| Blockchain         | [Solana](https://solana.com/) (Devnet)                                     |
-| Smart Contract     | [Anchor Framework](https://github.com/coral-xyz/anchor)                    |
-| Frontend           | [React](https://reactjs.org/) + [Next.js](https://nextjs.org/)             |
-| Build Tool         | [Vite](https://vitejs.dev/)                                                 |
-| Web3 Integration   | [@solana/web3.js](https://github.com/solana-labs/solana-web3.js)           |
-| Wallet Support     | Phantom Wallet (via browser extension)                                     |
-| Styling            | [Tailwind CSS](https://tailwindcss.com/)                                   |
-| Anchor JS Client   | [@coral-xyz/anchor](https://github.com/coral-xyz/anchor/tree/master/ts)    |
+| Layer            | Technology                                                              |
+| ---------------- | ----------------------------------------------------------------------- |
+| Blockchain       | [Solana](https://solana.com/) (Devnet)                                  |
+| Smart Contract   | [Anchor Framework](https://github.com/coral-xyz/anchor)                 |
+| Frontend         | [React](https://reactjs.org/) + [Next.js](https://nextjs.org/)          |
+| Build Tool       | [Vite](https://vitejs.dev/)                                             |
+| Web3 Integration | [@solana/web3.js](https://github.com/solana-labs/solana-web3.js)        |
+| Wallet Support   | Phantom Wallet (via browser extension)                                  |
+| Styling          | [Tailwind CSS](https://tailwindcss.com/)                                |
+| Anchor JS Client | [@coral-xyz/anchor](https://github.com/coral-xyz/anchor/tree/master/ts) |
 
 ---
 
@@ -122,4 +123,5 @@ If you're interested in contributing or have ideas for improvement, feel free to
 ## 📜 License
 
 MIT License — free to use, fork, build on.
+
 
