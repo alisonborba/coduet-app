@@ -122,3 +122,4 @@ If you're interested in contributing or have ideas for improvement, feel free to
 ## 📜 License
 
 MIT License — free to use, fork, build on.
+
