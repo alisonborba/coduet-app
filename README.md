@@ -84,7 +84,6 @@ This project is built during spare time and is a **work in progress**. Contribut
 
 ### 🔧 Upcoming Improvements
 
-- Fix a bug with edit profile.
 - Make sure the helpers filled the wallet field before send bids.
 - Add the completeContract transaction solana explorer link.
 - Form validations and toast notifications enhancements.
