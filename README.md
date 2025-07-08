@@ -91,7 +91,7 @@ This project is built during spare time and is a **work in progress**. Contribut
 - Unit tests.
 - Improve visual feedback.
 - Reusable hooks for Solana interactions.
-- Fix others (many 😅) bugs.
+- Fix others bugs.
 
 ---
 
